@@ -23,12 +23,12 @@ Booting Objects:
     directory: '/example/servers/server2/'
   serversGroup1:
     type: GROUP
-    priority: NORMAl
+    priority: NORMAL
     javaCommand: 'java -jar Server.jar'
     directory: '/example/servers/serversGroup1/'
   serversGroup2:
     type: GROUP
-    priority: NORMAl
+    priority: NORMAL
     firstPort: 25600
     javaCommand: 'java -jar Server.jar'
     directory: '/example/servers/serversGroup2/'
