@@ -12,10 +12,6 @@ import java.util.Map;
  */
 public class BootingServer extends BootingObject {
 
-    // START: screen -dmS test bash -c "cd /Users/Sergey/Desktop/testServer/ && java -jar Spigot.jar"
-    // STOP: screen -S test -p 0 -X stuff "stop`echo -ne '\015'`"
-    // KILL: screen -X -S test quit
-
     private final BootingObject parent;
     private final String screenName;
     private int uniqueID = -1, customPort = -1;
