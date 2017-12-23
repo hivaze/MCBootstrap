@@ -8,22 +8,30 @@ Settings:
   eachServerStartDelay: 5
   reverseStartOrderOnStop: false
 
+# Objects example configuration
 Booting Objects:
   server1:
     type: SERVER
     priority: NORMAL
     javaCommand: 'java -jar Server.jar'
-    directory: '/example/servers/serverDirecory1/'
+    directory: '/example/servers/server1/'
   server2:
     type: SERVER
     priority: HIGH
+    port: 25565
     javaCommand: 'java -jar Server.jar'
-    directory: '/example/servers/serverDirecory2/'
-  serversGroup:
+    directory: '/example/servers/server2/'
+  serversGroup1:
     type: GROUP
     priority: NORMAl
     javaCommand: 'java -jar Server.jar'
-    directory: '/example/servers/serversDirectory/'
+    directory: '/example/servers/serversGroup1/'
+  serversGroup2:
+    type: GROUP
+    priority: NORMAl
+    firstPort: 25600
+    javaCommand: 'java -jar Server.jar'
+    directory: '/example/servers/serversGroup2/'
   primaryServer:
     type: PRIMARY_SERVER
     priority: LOW

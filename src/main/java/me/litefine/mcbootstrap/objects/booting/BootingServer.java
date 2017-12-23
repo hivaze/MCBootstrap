@@ -29,15 +29,16 @@ public class BootingServer extends BootingObject {
 
     BootingServer(BootingGroup bootingGroup, String name, File directory) {
         super(directory, name, bootingGroup.javaCommand, bootingGroup.priority);
-        this.screenName = BasicUtils.getScreenNameFor(this);
         this.parent = bootingGroup;
+        this.screenName = BasicUtils.getScreenNameFor(this);
+        if (bootingGroup.hasFirstPort()) this.customPort = bootingGroup.getFirstPort() + bootingGroup.getServers().indexOf(this);
     }
 
     BootingServer(PrimaryBootingServer primaryServer, String name, File directory) {
         super(directory, name, primaryServer.javaCommand, primaryServer.priority);
-        this.customPort = primaryServer.getFirstPort() + primaryServer.getClonedServers().size() - 1;
-        this.screenName = BasicUtils.getScreenNameFor(this);
         this.parent = primaryServer;
+        this.screenName = BasicUtils.getScreenNameFor(this);
+        this.customPort = primaryServer.getFirstPort() + primaryServer.getClonedServers().indexOf(this);
     }
 
     @Override
@@ -46,13 +47,8 @@ public class BootingServer extends BootingObject {
             MCBootstrap.getLogger().info("Launch server '" + name + "', screen: " + screenName);
             if (parent instanceof PrimaryBootingServer) {
                 PrimaryBootingServer pServer = (PrimaryBootingServer) parent;
-                if (directory.exists()) {
-                    try {
-                        BasicUtils.deleteDirectory(directory, true);
-                    } catch (IOException e) {
-                        MCBootstrap.getLogger().error("Can't clean '" + name + "' directory (" + directory.getAbsolutePath() + ")", e.getMessage());
-                    }
-                } else directory.mkdirs();
+                if (directory.exists()) BasicUtils.deleteDirectory(directory, true);
+                else directory.mkdirs();
                 directory.deleteOnExit();
                 pServer.clonePrimaryDirectory(this);
             }
@@ -84,12 +80,12 @@ public class BootingServer extends BootingObject {
         }
     }
 
-    public int getCustomPort() {
-        return customPort;
-    }
-
     public boolean hasCustomPort() {
         return customPort != -1;
+    }
+
+    public int getCustomPort() {
+        return customPort;
     }
 
     public String getScreenName() {

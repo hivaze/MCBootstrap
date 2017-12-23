@@ -19,14 +19,13 @@ public class BootingGroup extends BootingObject {
             Settings.getBootingServers().stream().filter(server -> server.getParent() == this).collect(Collectors.toList());
 
     private boolean booted = false;
+    private int firstPort = -1;
 
     BootingGroup(String name, Map<String, String> properties) {
         super(name, properties);
+        if (properties.containsKey("firstPort")) firstPort = Integer.parseInt(properties.get("firstPort"));
         List<File> insideDirs = Arrays.stream(directory.listFiles()).filter(File::isDirectory).collect(Collectors.toList());
-        insideDirs.forEach(file -> {
-            try { new BootingServer(this, name + "-" + insideDirs.indexOf(file), file); }
-            catch (Exception ex) { MCBootstrap.getLogger().warn(ex.getMessage()); }
-        });
+        insideDirs.forEach(file -> new BootingServer(this, name + "-" + insideDirs.indexOf(file), file));
         MCBootstrap.getLogger().info(servers.get().size() + " valid servers found in '" + name + "' booting group.");
     }
 
@@ -66,8 +65,12 @@ public class BootingGroup extends BootingObject {
         return booted;
     }
 
-    public void setBooted(boolean booted) {
-        this.booted = booted;
+    public boolean hasFirstPort() {
+        return firstPort != -1;
+    }
+
+    public int getFirstPort() {
+        return firstPort;
     }
 
 }

@@ -31,7 +31,7 @@ public class MCBootstrap {
             Settings.loadFromConfig();
             ConsoleManager.setup();
         } catch (Exception ex) {
-            logger.error("An unexpected error occurred during the installation", ex);
+            logger.error("An unexpected error occurred during startup", ex);
             System.exit(103);
         }
         WatcherUtil.determineLaunchedObjects();

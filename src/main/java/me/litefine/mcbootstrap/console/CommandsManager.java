@@ -88,7 +88,7 @@ public class CommandsManager {
                 System.out.println();
                 System.out.println(" Launched servers: " + Settings.getRunningServers().size() + "/" + Settings.getBootingServers().size());
                 Settings.getBootingServers().forEach(server -> System.out.println(" - " + server.getName() +
-                        " (" + (server.isBooted() ? "BOOTED" : "NOT BOOTED") + ")"));
+                        " (" + (server.isBooted() ? "BOOTED" : "NOT BOOTED") + (server.hasCustomPort() ? ", port: " + server.getCustomPort() : "") +")"));
                 System.out.println();
             } else if (args[0].equalsIgnoreCase("groups")) {
                 System.out.println();

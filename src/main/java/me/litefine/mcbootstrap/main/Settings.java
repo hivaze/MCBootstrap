@@ -79,12 +79,13 @@ public class Settings {
                 URLClassLoader loader = new URLClassLoader(new URL[]{customPolicyFile.toURI().toURL()});
                 Class<? extends UniqueFilesPolicy> policyClass = loader.loadClass(customPolicyFile.getName()).asSubclass(UniqueFilesPolicy.class);
                 CUSTOM_POLICY = policyClass.newInstance();
-                MCBootstrap.getLogger().debug("Custom files policy successfully loaded.");
+                MCBootstrap.getLogger().debug("Custom files policy successfully loaded!");
             }
             catch (ClassCastException ex) {
                 MCBootstrap.getLogger().warn("Custom files policy class isn't a UniqueFilesPolicy instance!");
-            } catch (ReflectiveOperationException | MalformedURLException ex) {
-                MCBootstrap.getLogger().warn("An error occured while loading custom policy class" + ex.getMessage());
+            }
+            catch (ReflectiveOperationException | MalformedURLException ex) {
+                MCBootstrap.getLogger().warn("An error occured while loading custom policy class!" + ex.getMessage());
             }
         }
     }
