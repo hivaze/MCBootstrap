@@ -24,14 +24,14 @@ public class BootingServer extends BootingObject {
     }
 
     BootingServer(BootingGroup bootingGroup, String name, File directory) {
-        super(directory, name, bootingGroup.javaCommand, bootingGroup.priority);
+        super(directory, name, bootingGroup.processCommand, bootingGroup.priority);
         this.parent = bootingGroup;
         this.screenName = BasicUtils.getScreenNameFor(this);
         if (bootingGroup.hasFirstPort()) this.customPort = bootingGroup.getFirstPort() + bootingGroup.getServers().indexOf(this);
     }
 
     BootingServer(PrimaryBootingServer primaryServer, String name, File directory) {
-        super(directory, name, primaryServer.javaCommand, primaryServer.priority);
+        super(directory, name, primaryServer.processCommand, primaryServer.priority);
         this.parent = primaryServer;
         this.screenName = BasicUtils.getScreenNameFor(this);
         this.customPort = primaryServer.getFirstPort() + primaryServer.getClonedServers().indexOf(this);
@@ -48,7 +48,7 @@ public class BootingServer extends BootingObject {
                 directory.deleteOnExit();
                 pServer.clonePrimaryDirectory(this);
             }
-            new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", javaCommand + (customPort != -1 ? " -p " + customPort : ""))
+            new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", processCommand + (customPort != -1 ? " -p " + customPort : ""))
                     .directory(directory).inheritIO().start();
         } catch (IOException e) {
             MCBootstrap.getLogger().error("An error occured while booting server '" + name + "'", e.getMessage());

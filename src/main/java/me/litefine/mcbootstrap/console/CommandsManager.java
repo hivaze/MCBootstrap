@@ -116,7 +116,7 @@ public class CommandsManager {
                     System.out.println();
                     System.out.println(" Priority: " + object.getPriority());
                     System.out.println(" Directory: " + object.getDirectory().getAbsolutePath());
-                    System.out.println(" Java command: " + object.getJavaCommand());
+                    System.out.println(" Process start command: " + object.getProcessCommand());
                     System.out.println();
                 } else System.out.println("Object with name '" + args[0] + "' not found!");
             }

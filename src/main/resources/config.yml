@@ -13,30 +13,30 @@ Booting Objects:
   server1:
     type: SERVER
     priority: NORMAL
-    javaCommand: 'java -jar Server.jar'
+    processCommand: 'java -jar Server.jar'
     directory: '/example/servers/server1/'
   server2:
     type: SERVER
     priority: HIGH
     port: 25565
-    javaCommand: 'java -jar Server.jar'
+    processCommand: 'java -jar Server.jar'
     directory: '/example/servers/server2/'
   serversGroup1:
     type: GROUP
     priority: NORMAL
-    javaCommand: 'java -jar Server.jar'
+    processCommand: 'java -jar Server.jar'
     directory: '/example/servers/serversGroup1/'
   serversGroup2:
     type: GROUP
     priority: NORMAL
     firstPort: 25600
-    javaCommand: 'java -jar Server.jar'
+    processCommand: 'java -jar Server.jar'
     directory: '/example/servers/serversGroup2/'
   primaryServer:
     type: PRIMARY_SERVER
     priority: LOW
     uniqueFilesPolicy: RANDOM
-    javaCommand: 'java -jar MinigameServer.jar'
+    processCommand: 'java -jar MinigameServer.jar'
     copiesCount: 5
     firstPort: 30000
     directory: '/example/servers/primaryServerDirecory/'

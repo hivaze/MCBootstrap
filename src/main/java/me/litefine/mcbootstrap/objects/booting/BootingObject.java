@@ -15,24 +15,24 @@ public abstract class BootingObject {
 
     protected Priority priority = Priority.NORMAL;
     protected File directory;
-    protected String name, javaCommand;
+    protected String name, processCommand;
 
     protected static Predicate<File> directoryValidator = file -> file.isDirectory() && file.listFiles() != null;
 
     BootingObject(String name, Map<String, String> properties) {
         this.name = name;
-        this.javaCommand = properties.get("javaCommand");
+        this.processCommand = properties.get("processCommand");
         this.directory = new File(properties.get("directory"));
         if (properties.containsKey("priority")) this.priority = Priority.valueOf(properties.get("priority").toUpperCase());
         if (directoryValidator.test(directory)) Settings.getBootingObjects().add(this);
         else throw new InvalidParameterException("Booting object '" + name + "' has invalid directory!");
     }
 
-    BootingObject(File directory, String name, String javaCommand, Priority priority) {
+    BootingObject(File directory, String name, String processCommand, Priority priority) {
         if (directoryValidator.test(directory)) {
             this.directory = directory;
             this.name = name;
-            this.javaCommand = javaCommand;
+            this.processCommand = processCommand;
             this.priority = priority;
         } else throw new InvalidParameterException("Booting object '" + name + "' has invalid directory!");
     }
@@ -47,8 +47,8 @@ public abstract class BootingObject {
         return name;
     }
 
-    public String getJavaCommand() {
-        return javaCommand;
+    public String getProcessCommand() {
+        return processCommand;
     }
 
     public File getDirectory() {
