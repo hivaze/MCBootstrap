@@ -36,7 +36,11 @@ public class PrimaryBootingServer extends BootingObject {
         uniqueFilesPolicy = MCBootstrap.getUniqueFilesPolicy(properties.get("uniqueFilesPolicy"));
         for (int number = 1; number <= copiesCount; number++) {
             File destination = new File(generationDirectory.getAbsolutePath() + "/" + name + "-" + number);
-            new BootingServer(this, destination.getName(), destination);
+            try {
+                new BootingServer(this, destination.getName(), destination);
+            } catch (Exception ex) {
+                MCBootstrap.getLogger().warn("Can't load server '" + destination.getName() + "' in primary '" + name + "'", ex.getMessage());
+            }
         }
     }
 
@@ -96,6 +100,8 @@ public class PrimaryBootingServer extends BootingObject {
     }
 
     void clonePrimaryDirectory(BootingServer forObject) throws IOException {
+        MCBootstrap.getLogger().info("Generation of clone clone of '" + name + "' primary for server '" + forObject.name + "' in " + forObject.directory.getAbsolutePath());
+        long time = System.currentTimeMillis();
         File uniqueFilesFrom = uniqueFilesPolicy.getNextUniqueFolder(this, forObject);
         Function<Path, Path> relationMaker = path ->
                 Paths.get(forObject.directory.getAbsolutePath() + "/" + directory.toPath().getParent().relativize(path));
@@ -117,23 +123,26 @@ public class PrimaryBootingServer extends BootingObject {
             }
 
         });
-        if (uniqueFilesFrom.exists()) {
-            Files.walkFileTree(uniqueFilesFrom.toPath(), new SimpleFileVisitor<Path>() {
+        if (uniqueFilesFrom != null) {
+            if (uniqueFilesFrom.exists()) {
+                Files.walkFileTree(uniqueFilesFrom.toPath(), new SimpleFileVisitor<Path>() {
 
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    Files.copy(dir, relationMaker.apply(dir));
-                    return FileVisitResult.CONTINUE;
-                }
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                        Files.copy(dir, relationMaker.apply(dir));
+                        return FileVisitResult.CONTINUE;
+                    }
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.copy(file, relationMaker.apply(file));
-                    return FileVisitResult.CONTINUE;
-                }
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.copy(file, relationMaker.apply(file));
+                        return FileVisitResult.CONTINUE;
+                    }
 
-            });
-        } else MCBootstrap.getLogger().debug("Unique files directory " + uniqueFilesFrom.getAbsolutePath() + " does not exist!");
+                });
+            } else MCBootstrap.getLogger().debug("Unique files directory " + uniqueFilesFrom.getAbsolutePath() + " does not exist!");
+        }
+        MCBootstrap.getLogger().info("The clone '" + forObject.name + "' generated in " + (System.currentTimeMillis() - time) + " ms!");
     }
 
 }

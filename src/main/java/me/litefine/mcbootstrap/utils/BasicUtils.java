@@ -26,8 +26,9 @@ public class BasicUtils {
 
     public static final Random RANDOM = new Random();
 
-    public static void deleteDirectory(File direcory, boolean justClear) throws IOException {
-        Files.walkFileTree(direcory.toPath(), new SimpleFileVisitor<Path>() {
+    public static void deleteDirectory(File directory, boolean justClear) throws IOException {
+        MCBootstrap.getLogger().debug("Directory removal " + directory.getAbsolutePath());
+        Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>() {
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -37,7 +38,7 @@ public class BasicUtils {
 
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                if (direcory.toPath().equals(dir) && !justClear) Files.delete(dir);
+                if (directory.toPath().equals(dir) && !justClear) Files.delete(dir);
                 return super.postVisitDirectory(dir, exc);
             }
 

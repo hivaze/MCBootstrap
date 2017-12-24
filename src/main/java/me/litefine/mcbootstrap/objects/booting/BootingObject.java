@@ -66,7 +66,9 @@ public abstract class BootingObject {
             else if (type.equals("GROUP")) new BootingGroup(name, properties);
             else if (type.equals("PRIMARY_SERVER")) new PrimaryBootingServer(name, properties);
             else MCBootstrap.getLogger().warn("Unknown type of '" + name + "' booting object!");
-        } catch (Exception ex) { MCBootstrap.getLogger().warn(ex.getMessage()); }
+        } catch (Exception ex) {
+            MCBootstrap.getLogger().warn("Can't load object '" + name + "'", ex.getMessage());
+        }
     }
 
 

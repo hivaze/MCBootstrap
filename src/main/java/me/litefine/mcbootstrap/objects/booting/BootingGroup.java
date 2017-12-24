@@ -25,7 +25,14 @@ public class BootingGroup extends BootingObject {
         super(name, properties);
         if (properties.containsKey("firstPort")) firstPort = Integer.parseInt(properties.get("firstPort"));
         List<File> insideDirs = Arrays.stream(directory.listFiles()).filter(File::isDirectory).collect(Collectors.toList());
-        insideDirs.forEach(file -> new BootingServer(this, name + "-" + insideDirs.indexOf(file), file));
+        insideDirs.forEach(file -> {
+            String serverName = name + "-" + insideDirs.indexOf(file);
+            try {
+                new BootingServer(this, serverName, file);
+            } catch (Exception ex) {
+                MCBootstrap.getLogger().warn("Can't load server '" + serverName + "' in group '" + name + "'", ex.getMessage());
+            }
+        });
         MCBootstrap.getLogger().info(servers.get().size() + " valid servers found in '" + name + "' booting group.");
     }
 

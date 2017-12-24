@@ -51,7 +51,7 @@ public class WatcherUtil {
                     key.reset();
                 }
             } catch (InterruptedException e) {
-                MCBootstrap.getLogger().error("An error in screens directory watcher", e);
+                MCBootstrap.getLogger().error("An error in screens directory watcher", e.getMessage());
             }
         }, "Watcher Thread").start();
     }
