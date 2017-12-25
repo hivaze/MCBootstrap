@@ -128,10 +128,6 @@ public class Settings {
         return bootingObjects;
     }
 
-    public static List<BootingObject> getRunningObjects() {
-        return bootingObjects.stream().filter(BootingObject::isBooted).collect(Collectors.toList());
-    }
-
     public static BootingObject getBootingObjectByName(String name) {
         return bootingObjects.stream().filter(bootingObject -> bootingObject.getName().equals(name)).findFirst().orElse(null);
     }
@@ -146,7 +142,7 @@ public class Settings {
     }
 
     public static List<BootingServer> getRunningServers() {
-        return getBootingServers().stream().filter(BootingServer::isBooted).collect(Collectors.toList());
+        return bootingObjects.stream().filter(BootingObject::isRunningServer).map(BootingServer.class::cast).collect(Collectors.toList());
     }
 
     public static BootingServer getServerByScreenName(String screenName) {
@@ -158,16 +154,8 @@ public class Settings {
         return bootingObjects.stream().filter(BootingGroup.class::isInstance).map(BootingGroup.class::cast).collect(Collectors.toList());
     }
 
-    public static List<BootingGroup> getRunningGroups() {
-        return getBootingGroups().stream().filter(BootingGroup::isBooted).collect(Collectors.toList());
-    }
-
     // Booting primaries part
     public static List<PrimaryBootingServer> getPrimaryBootingServers() {
-        return bootingObjects.stream().filter(PrimaryBootingServer.class::isInstance).map(PrimaryBootingServer.class::cast).collect(Collectors.toList());
-    }
-
-    public static List<PrimaryBootingServer> getRunningPrimaryServers() {
         return bootingObjects.stream().filter(PrimaryBootingServer.class::isInstance).map(PrimaryBootingServer.class::cast).collect(Collectors.toList());
     }
 

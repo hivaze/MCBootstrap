@@ -25,7 +25,6 @@ public class PrimaryBootingServer extends BootingObject {
     private final UniqueFilesPolicy uniqueFilesPolicy;
     private final File generationDirectory, uniqueFiles;
     private final int copiesCount, firstPort;
-    private boolean booted = false;
 
     PrimaryBootingServer(String name, Map<String, String> properties) {
         super(name, properties);
@@ -61,7 +60,6 @@ public class PrimaryBootingServer extends BootingObject {
                 }
             }
         });
-        booted = true;
     }
 
     @Override
@@ -71,12 +69,6 @@ public class PrimaryBootingServer extends BootingObject {
             if (bootingServer.isBooted())
                 bootingServer.stopObject();
         });
-        booted = false;
-    }
-
-    @Override
-    public boolean isBooted() {
-        return booted;
     }
 
     public File getGenerationDirectory() {

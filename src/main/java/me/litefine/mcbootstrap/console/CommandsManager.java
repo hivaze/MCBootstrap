@@ -3,7 +3,10 @@ package me.litefine.mcbootstrap.console;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
 import me.litefine.mcbootstrap.objects.CommandConsumer;
+import me.litefine.mcbootstrap.objects.booting.BootingGroup;
 import me.litefine.mcbootstrap.objects.booting.BootingObject;
+import me.litefine.mcbootstrap.objects.booting.BootingServer;
+import me.litefine.mcbootstrap.objects.booting.PrimaryBootingServer;
 import me.litefine.mcbootstrap.utils.BasicUtils;
 
 import java.lang.management.ManagementFactory;
@@ -94,16 +97,21 @@ public class CommandsManager {
                 System.out.println();
                 System.out.println("Booting groups information");
                 System.out.println();
-                System.out.println(" Launched groups: " + Settings.getRunningGroups().size() + "/" + Settings.getBootingGroups().size());
-                Settings.getBootingGroups().forEach(group -> System.out.println(" - " + group.getName() + " (" + (group.isBooted() ? "BOOTED" : "NOT BOOTED") + ")"));
+                System.out.println(" Total groups count: " + Settings.getBootingGroups().size());
+                Settings.getBootingGroups().forEach(group -> {
+                    System.out.println(" - Group name: '" + group.getName() + "', servers count: " + group.getServers().size());
+                    System.out.println(" Servers: " + BasicUtils.getServersString(group));
+                });
                 System.out.println();
             } else if (args[0].equalsIgnoreCase("primaries")) {
                 System.out.println();
-                System.out.println("Primary booting servers information");
+                System.out.println("Primary booting servers information:");
                 System.out.println();
-                System.out.println(" Launched primaries: " + Settings.getRunningPrimaryServers().size() + "/" + Settings.getPrimaryBootingServers().size());
-                Settings.getRunningPrimaryServers().forEach(group -> System.out.println(" - " + group.getName() +
-                        " (" + (group.isBooted() ? "BOOTED" : "NOT BOOTED") + ")"));
+                System.out.println(" Total primaries count: " + Settings.getPrimaryBootingServers().size());
+                Settings.getPrimaryBootingServers().forEach(primary -> {
+                    System.out.println(" - Primary name: '" + primary.getName() + "', servers count: " + primary.getClonedServers().size());
+                    System.out.println(" Servers: " + BasicUtils.getServersString(primary));
+                });
                 System.out.println();
             } else {
                 BootingObject object = Settings.getBootingObjectByName(args[0]);
@@ -112,11 +120,27 @@ public class CommandsManager {
                     System.out.println("Object name: " + object.getName());
                     System.out.println();
                     System.out.println(" Type: " + object.getClass().getSimpleName());
-                    System.out.println(" Is booted: " + object.isBooted());
-                    System.out.println();
                     System.out.println(" Priority: " + object.getPriority());
                     System.out.println(" Directory: " + object.getDirectory().getAbsolutePath());
-                    System.out.println(" Process start command: " + object.getProcessCommand());
+                    System.out.println(" Auto restart: " + object.hasAutoRestartProperty());
+                    System.out.println(" Java command: " + object.getJavaCommand());
+                    System.out.println();
+                    if (object instanceof BootingServer) {
+                        BootingServer server = (BootingServer) object;
+                        System.out.println(" Is booted: " + server.isBooted());
+                        if (server.hasCustomPort()) System.out.println(" Custom port: " + server.getCustomPort());
+                        System.out.println(" Screen name: " + (server.isBooted() ? server.getScreenID() + "." : "") + server.getScreenName());
+                        if (server.hasParent()) System.out.println(" Parent object: " + server.getParent());
+                    } else if (object instanceof BootingGroup) {
+                        BootingGroup group = (BootingGroup) object;
+                        if (group.hasFirstPort()) System.out.println(" First port: " + group.getFirstPort());
+                        System.out.println(" Servers: " + BasicUtils.getServersString(group));
+                    } else if (object instanceof PrimaryBootingServer) {
+                        PrimaryBootingServer primary = (PrimaryBootingServer) object;
+                        System.out.println(" First port: " + primary.getFirstPort());
+                        System.out.println(" Generation directory: " + primary.getGenerationDirectory().getAbsolutePath());
+                        System.out.println(" Servers: " + BasicUtils.getServersString(primary));
+                    }
                     System.out.println();
                 } else System.out.println("Object with name '" + args[0] + "' not found!");
             }
@@ -127,8 +151,8 @@ public class CommandsManager {
                 else {
                     BootingObject object = Settings.getBootingObjectByName(args[0]);
                     if (object != null) {
-                        if (!object.isBooted()) object.bootObject();
-                        else System.out.println("Object is already booted!");
+                        if (!object.isRunningServer()) object.bootObject();
+                        else System.out.println("That server is already booted!");
                     } else System.out.println("Object with name '" + args[0] + "' not found!");
                 }
             } else System.out.println("Usage: 'start <all|objectName>'");
@@ -138,15 +162,13 @@ public class CommandsManager {
                 if (args[0].equalsIgnoreCase("all")) MCBootstrap.stopAllObjects();
                 else {
                     BootingObject object = Settings.getBootingObjectByName(args[0]);
-                    if (object != null) {
-                        if (object.isBooted()) object.stopObject();
-                        else System.out.println("Object is already stopped!");
-                    } else System.out.println("Object with name '" + args[0] + "' not found!");
+                    if (object != null) object.stopObject();
+                    else System.out.println("Object with name '" + args[0] + "' not found!");
                 }
             } else System.out.println("Usage: 'stop <all|objectName>'");
         });
         commands.put("shutdown", args -> MCBootstrap.shutdown(true));
-        commands.put("exit", args -> MCBootstrap.shutdown(false));
+        commands.put("systemexit", args -> MCBootstrap.shutdown(false));
     }
 
 }

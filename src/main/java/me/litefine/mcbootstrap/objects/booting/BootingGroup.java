@@ -18,7 +18,6 @@ public class BootingGroup extends BootingObject {
     private final Supplier<List<BootingServer>> servers = () ->
             Settings.getBootingServers().stream().filter(server -> server.getParent() == this).collect(Collectors.toList());
 
-    private boolean booted = false;
     private int firstPort = -1;
 
     BootingGroup(String name, Map<String, String> properties) {
@@ -50,7 +49,6 @@ public class BootingGroup extends BootingObject {
                 }
             }
         });
-        booted = true;
     }
 
     @Override
@@ -60,16 +58,10 @@ public class BootingGroup extends BootingObject {
             if (bootingServer.isBooted())
                 bootingServer.stopObject();
         });
-        booted = false;
     }
 
     public List<BootingServer> getServers() {
         return servers.get();
-    }
-
-    @Override
-    public boolean isBooted() {
-        return booted;
     }
 
     public boolean hasFirstPort() {

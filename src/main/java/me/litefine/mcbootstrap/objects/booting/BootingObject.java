@@ -15,14 +15,16 @@ public abstract class BootingObject {
 
     protected Priority priority = Priority.NORMAL;
     protected File directory;
-    protected String name, processCommand;
+    protected String name, javaCommand;
+    protected boolean autoRestart = false;
 
     protected static Predicate<File> directoryValidator = file -> file.isDirectory() && file.listFiles() != null;
 
     BootingObject(String name, Map<String, String> properties) {
         this.name = name;
-        this.processCommand = properties.get("processCommand");
+        this.javaCommand = properties.get("javaCommand");
         this.directory = new File(properties.get("directory"));
+        if (properties.containsKey("autoRestart")) autoRestart = Boolean.valueOf(properties.get("autoRestart"));
         if (properties.containsKey("priority")) this.priority = Priority.valueOf(properties.get("priority").toUpperCase());
         if (directoryValidator.test(directory)) Settings.getBootingObjects().add(this);
         else throw new InvalidParameterException("Booting object '" + name + "' has invalid directory!");
@@ -32,7 +34,7 @@ public abstract class BootingObject {
         if (directoryValidator.test(directory)) {
             this.directory = directory;
             this.name = name;
-            this.processCommand = processCommand;
+            this.javaCommand = processCommand;
             this.priority = priority;
         } else throw new InvalidParameterException("Booting object '" + name + "' has invalid directory!");
     }
@@ -41,14 +43,20 @@ public abstract class BootingObject {
 
     public abstract void stopObject();
 
-    public abstract boolean isBooted();
+    public boolean hasAutoRestartProperty() {
+        return autoRestart;
+    }
+
+    public boolean isRunningServer() {
+        return this instanceof BootingServer && ((BootingServer) this).isBooted();
+    }
 
     public String getName() {
         return name;
     }
 
-    public String getProcessCommand() {
-        return processCommand;
+    public String getJavaCommand() {
+        return javaCommand;
     }
 
     public File getDirectory() {

@@ -14,7 +14,8 @@ public class BootingServer extends BootingObject {
 
     private final BootingObject parent;
     private final String screenName;
-    private int uniqueID = -1, customPort = -1;
+    private int screenID = -1, customPort = -1;
+    private boolean temporaryBootingFlag = false;
 
     BootingServer(String name, Map<String, String> properties) {
         super(name, properties);
@@ -24,16 +25,18 @@ public class BootingServer extends BootingObject {
     }
 
     BootingServer(BootingGroup bootingGroup, String name, File directory) {
-        super(directory, name, bootingGroup.processCommand, bootingGroup.priority);
+        super(directory, name, bootingGroup.javaCommand, bootingGroup.priority);
         this.parent = bootingGroup;
         this.screenName = BasicUtils.getScreenNameFor(this);
+        this.autoRestart = bootingGroup.autoRestart;
         if (bootingGroup.hasFirstPort()) this.customPort = bootingGroup.getFirstPort() + bootingGroup.getServers().indexOf(this);
     }
 
     BootingServer(PrimaryBootingServer primaryServer, String name, File directory) {
-        super(directory, name, primaryServer.processCommand, primaryServer.priority);
+        super(directory, name, primaryServer.javaCommand, primaryServer.priority);
         this.parent = primaryServer;
         this.screenName = BasicUtils.getScreenNameFor(this);
+        this.autoRestart = primaryServer.autoRestart;
         this.customPort = primaryServer.getFirstPort() + primaryServer.getClonedServers().indexOf(this);
     }
 
@@ -48,7 +51,7 @@ public class BootingServer extends BootingObject {
                 directory.deleteOnExit();
                 pServer.clonePrimaryDirectory(this);
             }
-            new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", processCommand + (customPort != -1 ? " -p " + customPort : ""))
+            new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", javaCommand + (customPort != -1 ? " -p " + customPort : ""))
                     .directory(directory).inheritIO().start();
         } catch (IOException e) {
             MCBootstrap.getLogger().error("An error occured while booting server '" + name + "'", e.getMessage());
@@ -59,20 +62,25 @@ public class BootingServer extends BootingObject {
     public void stopObject() {
         try {
             MCBootstrap.getLogger().info("Stopping server '" + name + "', screen: " + screenName);
-            new ProcessBuilder("screen", "-S", uniqueID + "." + screenName, "-p 0", "-X stuff", "\"stop`echo -ne '\\015'`\"").inheritIO().start();
+            new ProcessBuilder("screen", "-S", screenID + "." + screenName, "-p 0", "-X stuff", "\"stop`echo -ne '\\015'`\"").inheritIO().start();
+            temporaryBootingFlag = true;
         } catch (IOException e) {
             MCBootstrap.getLogger().error("Can't stop screen for " + name, e.getMessage());
         }
     }
 
-    public void setUniqueID(int uniqueID) {
-        this.uniqueID = uniqueID;
-        if (uniqueID == -1 && parent instanceof PrimaryBootingServer) {
-            try {
-                BasicUtils.deleteDirectory(directory, false);
-            } catch (IOException e) {
-                MCBootstrap.getLogger().error("Can't delete '" + name + "' directory (" + directory.getAbsolutePath() + ")", e.getMessage());
+    public void setScreenID(int screenID) {
+        this.screenID = screenID;
+        if (screenID == -1) {
+            if (parent instanceof PrimaryBootingServer) {
+                try {
+                    BasicUtils.deleteDirectory(directory, false);
+                } catch (IOException e) {
+                    MCBootstrap.getLogger().error("Can't delete '" + name + "' directory (" + directory.getAbsolutePath() + ")", e.getMessage());
+                }
             }
+            if (autoRestart && !temporaryBootingFlag) this.bootObject();
+            temporaryBootingFlag = false;
         }
     }
 
@@ -88,13 +96,12 @@ public class BootingServer extends BootingObject {
         return screenName;
     }
 
-    @Override
     public boolean isBooted() {
-        return uniqueID != -1;
+        return screenID != -1;
     }
 
-    public int getUniqueID() {
-        return uniqueID;
+    public int getScreenID() {
+        return screenID;
     }
 
     public boolean hasParent() {

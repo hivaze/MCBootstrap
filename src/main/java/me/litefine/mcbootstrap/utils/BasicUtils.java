@@ -2,7 +2,10 @@ package me.litefine.mcbootstrap.utils;
 
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
+import me.litefine.mcbootstrap.objects.booting.BootingGroup;
 import me.litefine.mcbootstrap.objects.booting.BootingServer;
+import me.litefine.mcbootstrap.objects.booting.PrimaryBootingServer;
+import org.fusesource.jansi.Ansi;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -43,6 +46,30 @@ public class BasicUtils {
             }
 
         });
+    }
+
+    public static String getServersString(BootingGroup group) {
+        if (!group.getServers().isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            group.getServers().forEach(bootingServer -> {
+                if (bootingServer.isBooted()) builder.append(Ansi.ansi().fg(Ansi.Color.GREEN).a(bootingServer.getName()).reset());
+                else builder.append(bootingServer.getName());
+                builder.append(", ");
+            });
+            return builder.toString().substring(0, builder.length() - 2);
+        } else return "[]";
+    }
+
+    public static String getServersString(PrimaryBootingServer primary) {
+        if (!primary.getClonedServers().isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            primary.getClonedServers().forEach(bootingServer -> {
+                if (bootingServer.isBooted()) builder.append(Ansi.ansi().fg(Ansi.Color.GREEN).a(bootingServer.getName()).reset());
+                else builder.append(bootingServer.getName());
+                builder.append(", ");
+            });
+            return builder.toString().substring(0, builder.length() - 2);
+        } else return "[]";
     }
 
     public static String millisToPattern(long millis) {

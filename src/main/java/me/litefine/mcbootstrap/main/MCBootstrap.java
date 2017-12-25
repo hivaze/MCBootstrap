@@ -3,6 +3,7 @@ package me.litefine.mcbootstrap.main;
 import me.litefine.mcbootstrap.console.ConsoleManager;
 import me.litefine.mcbootstrap.objects.UniqueFilesPolicy;
 import me.litefine.mcbootstrap.objects.booting.BootingObject;
+import me.litefine.mcbootstrap.objects.booting.BootingServer;
 import me.litefine.mcbootstrap.utils.WatcherUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,7 +51,7 @@ public class MCBootstrap {
     public static void startAllObjects() {
         if (Settings.getBootingObjects().isEmpty()) MCBootstrap.getLogger().warn("No booting objects to run!");
         else Settings.getBootingObjects().forEach(bootingObject -> {
-            if (!bootingObject.isBooted()) {
+            if (!bootingObject.isRunningServer()) {
                 bootingObject.bootObject();
                 if (Settings.getStartDelay() > 0 && Settings.getBootingObjects().indexOf(bootingObject) != Settings.getBootingObjects().size()-1) {
                     try {
@@ -63,13 +64,13 @@ public class MCBootstrap {
     }
 
     public static void stopAllObjects() {
-        if (Settings.getRunningObjects().isEmpty()) MCBootstrap.getLogger().warn("No running objects to stop!");
+        if (Settings.getRunningServers().isEmpty()) MCBootstrap.getLogger().warn("No running objects to stop!");
         else {
             if (Settings.reverseOrderOnStop()) {
-                List<BootingObject> reversedCopy = new ArrayList<>(Settings.getRunningObjects());
+                List<BootingServer> reversedCopy = new ArrayList<>(Settings.getRunningServers());
                 reversedCopy.sort(Comparator.comparingInt(object -> object.getPriority().getPoints()));
-                reversedCopy.forEach(BootingObject::stopObject);
-            } else Settings.getRunningObjects().forEach(BootingObject::stopObject);
+                reversedCopy.forEach(BootingServer::stopObject);
+            } else Settings.getRunningServers().forEach(BootingObject::stopObject);
         }
     }
 
