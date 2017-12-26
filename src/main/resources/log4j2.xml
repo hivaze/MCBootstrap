@@ -3,7 +3,7 @@
     <Properties> <Property name="baseDir">MCBootstrap/logs</Property> </Properties>
     <Appenders>
         <Console name="MCBootstrap-Console"> <PatternLayout pattern="\r[%d{HH:mm:ss}] [%level] %msg%n> "/> </Console>
-        <RollingFile name="MCBootstrap-File" filePattern="${baseDir}/launch ${date:HH.mm.ss yyyy:MM:dd}.log">
+        <RollingFile name="MCBootstrap-File" filePattern="${baseDir}/launch ${date:HH.mm.ss yyyy.MM.dd}.log">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%level] %msg%n" />
             <Policies> <OnStartupTriggeringPolicy /> </Policies>
         </RollingFile>

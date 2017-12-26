@@ -38,13 +38,13 @@ public class WatcherUtil {
                         if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
                             if (server != null && !server.isBooted()) {
                                 server.setScreenID(uniqueID);
-                                MCBootstrap.getLogger().debug("Screen " + pathEvent.context().getFileName() + " for server " + server.getName() + " created.");
+                                MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' created.");
                             }
                         }
                         if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
                             if (server != null && server.isBooted()) {
                                 server.setScreenID(-1);
-                                MCBootstrap.getLogger().debug("Screen " + pathEvent.context().getFileName() + " for server " + server.getName() + " deleted.");
+                                MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' deleted.");
                             }
                         }
                     }
@@ -62,6 +62,8 @@ public class WatcherUtil {
             BootingServer server = Settings.getServerByScreenName(nameSplit[1]);
             if (server != null) server.setScreenID(Integer.parseInt(nameSplit[0]));
         }
+        if (!Settings.getRunningServers().isEmpty())
+            MCBootstrap.getLogger().info(Settings.getRunningServers().size() + " already launched servers found.");
     }
 
 }

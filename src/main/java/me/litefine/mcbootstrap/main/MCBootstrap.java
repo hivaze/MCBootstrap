@@ -2,12 +2,14 @@ package me.litefine.mcbootstrap.main;
 
 import me.litefine.mcbootstrap.console.ConsoleManager;
 import me.litefine.mcbootstrap.objects.UniqueFilesPolicy;
-import me.litefine.mcbootstrap.objects.booting.BootingObject;
 import me.litefine.mcbootstrap.objects.booting.BootingServer;
 import me.litefine.mcbootstrap.utils.WatcherUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -19,6 +21,10 @@ import java.util.List;
 public class MCBootstrap {
 
     static {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(MCBootstrap.class.getResourceAsStream("/logo.txt")));
+            while (reader.ready()) System.out.println(reader.readLine());
+        } catch (IOException ignored) {}
         System.out.println("Loading libraries, please wait...");
     }
 
@@ -49,7 +55,7 @@ public class MCBootstrap {
     }
 
     public static void startAllObjects() {
-        if (Settings.getBootingObjects().isEmpty()) MCBootstrap.getLogger().warn("No booting objects to run!");
+        if (Settings.getBootingServers().size() == Settings.getRunningServers().size()) MCBootstrap.getLogger().warn("No booting objects to run!");
         else Settings.getBootingObjects().forEach(bootingObject -> {
             if (!bootingObject.isRunningServer()) {
                 bootingObject.bootObject();
@@ -70,7 +76,7 @@ public class MCBootstrap {
                 List<BootingServer> reversedCopy = new ArrayList<>(Settings.getRunningServers());
                 reversedCopy.sort(Comparator.comparingInt(object -> object.getPriority().getPoints()));
                 reversedCopy.forEach(BootingServer::stopObject);
-            } else Settings.getRunningServers().forEach(BootingObject::stopObject);
+            } else Settings.getRunningServers().forEach(BootingServer::stopObject);
         }
     }
 

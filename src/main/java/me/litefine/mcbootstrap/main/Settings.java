@@ -60,6 +60,7 @@ public class Settings {
         startDelay = YamlUtils.getLongValue("Settings.eachServerStartDelay", mapRepresentation);
         reverseOrderOnStop = YamlUtils.getBooleanValue("Settings.reverseStartOrderOnStop", mapRepresentation);
         Map<String, Map<String, String>> objects = YamlUtils.getMapValue("Booting Objects", mapRepresentation);
+        MCBootstrap.getLogger().info("Loading booting objects from config...");
         objects.forEach(BootingObject::from);
         bootingObjects.sort(Comparator.comparingInt((BootingObject object) -> object.getPriority().getPoints()).reversed());
         MCBootstrap.getLogger().info(bootingObjects.size() + " objects for booting loaded from config.");

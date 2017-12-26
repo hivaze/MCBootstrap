@@ -20,7 +20,6 @@ public class ConsoleManager {
         reader.setExpandEvents(false);
         CommandsManager.registerCommands();
         consoleThread = new Thread(() -> {
-            MCBootstrap.getLogger().debug("Launch console thread...");
             while (true) {
                 try {
                     String command = reader.readLine();

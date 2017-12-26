@@ -159,7 +159,7 @@ public class CommandsManager {
         });
         commands.put("stop", args -> {
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("all")) MCBootstrap.stopAllObjects();
+                if (args[0].equalsIgnoreCase("all")) MCBootstrap.startAllObjects();
                 else {
                     BootingObject object = Settings.getBootingObjectByName(args[0]);
                     if (object != null) object.stopObject();

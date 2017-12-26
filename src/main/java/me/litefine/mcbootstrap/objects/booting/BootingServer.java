@@ -62,7 +62,7 @@ public class BootingServer extends BootingObject {
     public void stopObject() {
         try {
             MCBootstrap.getLogger().info("Stopping server '" + name + "', screen: " + screenName);
-            new ProcessBuilder("screen", "-S", screenID + "." + screenName, "-p 0", "-X stuff", "\"stop`echo -ne '\\015'`\"").inheritIO().start();
+            new ProcessBuilder("screen", "-p", "0", "-S", screenID + "." + screenName, "-X", "eval", "stuff \"stop\"\\015").inheritIO().start();
             temporaryBootingFlag = true;
         } catch (IOException e) {
             MCBootstrap.getLogger().error("Can't stop screen for " + name, e.getMessage());
