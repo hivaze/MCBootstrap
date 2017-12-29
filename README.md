@@ -1,6 +1,6 @@
 ![Logo](https://image.ibb.co/kexbmb/cooltext271004839975988.png "Optional title")
 
-MCBootstrap it is a very **customizable** and **powerfull** tool for **minecraft** server adminstartors, that allows to manage **servers statuses**. This application helps to start and stop your servers automaticaly and log their work. An important feature is the ability to generate clones of servers in runtime and create custom addons.
+**MCBootstrap** it is a very **customizable** and **powerfull** tool for **minecraft** server adminstartors, that allows to manage **servers statuses**. This application helps to start and stop your servers automaticaly and log their work. An important feature is the ability to generate clones of servers in runtime and create custom addons.
 
 ## Features of work
 * Easy to use. All settings are in one file _config.yml_.
