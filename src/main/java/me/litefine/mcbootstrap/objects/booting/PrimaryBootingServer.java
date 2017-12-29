@@ -32,13 +32,13 @@ public class PrimaryBootingServer extends BootingObject {
         firstPort = Integer.parseInt(properties.get("firstPort"));
         generationDirectory = new File(properties.get("generationDirectory"));
         uniqueFiles = new File(directory.getAbsolutePath() + "/_unique_/");
-        uniqueFilesPolicy = MCBootstrap.getUniqueFilesPolicy(properties.get("uniqueFilesPolicy"));
+        uniqueFilesPolicy = Settings.getUniqueFilesPolicy(properties.get("uniqueFilesPolicy"));
         for (int number = 1; number <= copiesCount; number++) {
             File destination = new File(generationDirectory.getAbsolutePath() + "/" + name + "-" + number);
             try {
                 new BootingServer(this, destination.getName(), destination);
             } catch (Exception ex) {
-                MCBootstrap.getLogger().warn("Can't load server '" + destination.getName() + "' in primary '" + name + "'", ex.getMessage());
+                MCBootstrap.getLogger().warn("Can't load server '" + destination.getName() + "' in primary '" + name + "' - " +  ex.getMessage());
             }
         }
     }

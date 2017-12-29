@@ -1,7 +1,8 @@
 package me.litefine.mcbootstrap.main;
 
 import me.litefine.mcbootstrap.console.ConsoleManager;
-import me.litefine.mcbootstrap.objects.UniqueFilesPolicy;
+import me.litefine.mcbootstrap.extensions.Extension;
+import me.litefine.mcbootstrap.extensions.ExtensionsManager;
 import me.litefine.mcbootstrap.objects.booting.BootingServer;
 import me.litefine.mcbootstrap.utils.WatcherUtil;
 import org.apache.logging.log4j.LogManager;
@@ -37,11 +38,13 @@ public class MCBootstrap {
             Settings.setupFiles();
             Settings.loadFromConfig();
             ConsoleManager.setup();
+            ExtensionsManager.loadExtensions();
         } catch (Exception ex) {
             logger.error("An unexpected error occurred during startup", ex);
             System.exit(103);
         }
         WatcherUtil.determineLaunchedObjects();
+        ExtensionsManager.getExtensions().forEach(Extension::onSystemStartup);
         if (Settings.bootAllOnStart()) MCBootstrap.startAllObjects();
         logger.debug("Local screen utility folder: " + Settings.getScreensFolder().getAbsolutePath());
         logger.info("MCBootstrap started in " + (System.currentTimeMillis() - time) + " ms.");
@@ -50,6 +53,7 @@ public class MCBootstrap {
 
     public static void shutdown(boolean stopServers) {
         logger.info("Shutdown...");
+        ExtensionsManager.getExtensions().forEach(Extension::onSystemShutdown);
         if (stopServers) MCBootstrap.stopAllObjects();
         System.exit(0);
     }
@@ -82,13 +86,6 @@ public class MCBootstrap {
 
     public static Logger getLogger() {
         return logger;
-    }
-
-    public static UniqueFilesPolicy getUniqueFilesPolicy(String name) {
-        if (name.equalsIgnoreCase("inorder")) return Settings.INORDER_POLICY;
-        else if (name.equalsIgnoreCase("random")) return Settings.RANDOM_POLICY;
-        else if (name.equalsIgnoreCase("custom")) return Settings.CUSTOM_POLICY;
-        else return null;
     }
 
 }

@@ -29,7 +29,7 @@ public class BootingGroup extends BootingObject {
             try {
                 new BootingServer(this, serverName, file);
             } catch (Exception ex) {
-                MCBootstrap.getLogger().warn("Can't load server '" + serverName + "' in group '" + name + "'", ex.getMessage());
+                MCBootstrap.getLogger().warn("Can't load server '" + serverName + "' in group '" + name + "' - " + ex.getMessage());
             }
         });
         MCBootstrap.getLogger().info(servers.get().size() + " valid servers found in '" + name + "' booting group.");

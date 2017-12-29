@@ -1,5 +1,6 @@
 package me.litefine.mcbootstrap.console;
 
+import me.litefine.mcbootstrap.extensions.ExtensionsManager;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
 import me.litefine.mcbootstrap.objects.CommandConsumer;
@@ -10,7 +11,9 @@ import me.litefine.mcbootstrap.objects.booting.PrimaryBootingServer;
 import me.litefine.mcbootstrap.utils.BasicUtils;
 
 import java.lang.management.ManagementFactory;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by LITEFINE IDEA on 03.12.17.
@@ -47,6 +50,7 @@ public class CommandsManager {
             System.out.println(" - 'info groups' -> Shows information about all booting groups");
             System.out.println(" - 'info primaries' -> Shows information about all primary booting servers");
             System.out.println(" - 'info <objectName>' -> Shows all information about specific object");
+            System.out.println(" - 'info extensions' -> Shows all information about loaded extensions");
             System.out.println(" - 'start <all|objectName> -> Start specific object or all booting objects");
             System.out.println(" - 'stop <all|objectName> -> Stop specific object or all running objects");
             System.out.println(" - 'shutdown -> Shutdown application and all running objects");
@@ -60,6 +64,7 @@ public class CommandsManager {
                 System.out.println(" Launched servers: " + Settings.getRunningServers().size());
                 System.out.println(" For more information about booting objects use 'info objects' command.");
                 System.out.println();
+                System.out.println(" Extensions loaded: " + ExtensionsManager.getExtensions().size());
                 System.out.println(" Main folder: " + Settings.getDataFolder().getAbsolutePath());
                 System.out.println(" Screens folder: " + Settings.getScreensFolder().getAbsolutePath());
                 System.out.println();
@@ -112,6 +117,14 @@ public class CommandsManager {
                     System.out.println(" - Primary name: '" + primary.getName() + "', servers count: " + primary.getClonedServers().size());
                     System.out.println(" Servers: " + BasicUtils.getServersString(primary));
                 });
+                System.out.println();
+            } else if (args[0].equalsIgnoreCase("extensions")) {
+                System.out.println();
+                System.out.println("Extensions manager information:");
+                System.out.println();
+                if (ExtensionsManager.getExtensions().isEmpty()) System.out.println(" No loaded extensions foubd.");
+                ExtensionsManager.getExtensions().forEach(extension ->
+                        System.out.println(" - " + extension.getName() + " v. " + extension.getVersion() + " | Author " + extension.getAuthor()));
                 System.out.println();
             } else {
                 BootingObject object = Settings.getBootingObjectByName(args[0]);
@@ -169,6 +182,20 @@ public class CommandsManager {
         });
         commands.put("shutdown", args -> MCBootstrap.shutdown(true));
         commands.put("systemexit", args -> MCBootstrap.shutdown(false));
+    }
+
+    public static void registerCommand(String command, CommandConsumer consumer) {
+        commands.put(command, consumer);
+        MCBootstrap.getLogger().debug("Command registration: '" + command + "'");
+    }
+
+    public static void unregisterCommand(String command) {
+        commands.remove(command);
+        MCBootstrap.getLogger().debug("Command deregistration: '" + command + "'");
+    }
+
+    public static Map<String, CommandConsumer> getCommands() {
+        return Collections.unmodifiableMap(commands);
     }
 
 }

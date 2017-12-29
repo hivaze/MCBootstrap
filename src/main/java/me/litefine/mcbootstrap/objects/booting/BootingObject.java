@@ -27,7 +27,7 @@ public abstract class BootingObject {
         if (properties.containsKey("autoRestart")) autoRestart = Boolean.valueOf(properties.get("autoRestart"));
         if (properties.containsKey("priority")) this.priority = Priority.valueOf(properties.get("priority").toUpperCase());
         if (directoryValidator.test(directory)) Settings.getBootingObjects().add(this);
-        else throw new InvalidParameterException("Booting object '" + name + "' has invalid directory!");
+        else throw new InvalidParameterException("Invalid directory!");
     }
 
     BootingObject(File directory, String name, String processCommand, Priority priority) {
@@ -36,7 +36,7 @@ public abstract class BootingObject {
             this.name = name;
             this.javaCommand = processCommand;
             this.priority = priority;
-        } else throw new InvalidParameterException("Booting object '" + name + "' has invalid directory!");
+        } else throw new InvalidParameterException("Invalid directory!");
     }
 
     public abstract void bootObject();
@@ -75,7 +75,7 @@ public abstract class BootingObject {
             else if (type.equals("PRIMARY_SERVER")) new PrimaryBootingServer(name, properties);
             else MCBootstrap.getLogger().warn("Unknown type of '" + name + "' booting object!");
         } catch (Exception ex) {
-            MCBootstrap.getLogger().warn("Can't load object '" + name + "'", ex.getMessage());
+            MCBootstrap.getLogger().warn("Can't load object '" + name + "' - " + ex.getMessage());
         }
     }
 

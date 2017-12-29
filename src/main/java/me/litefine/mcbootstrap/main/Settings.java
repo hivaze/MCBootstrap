@@ -13,9 +13,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class Settings {
 
-    private static File dataFolder, configFile, runnedJar, screensFolder;
+    private static File dataFolder, configFile, extensionsFolder, runnedJar, screensFolder;
     private static final List<BootingObject> bootingObjects = new ArrayList<>();
 
     private static long startDelay;
@@ -47,6 +44,7 @@ public class Settings {
         runnedJar = new File(MCBootstrap.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         dataFolder = new File(runnedJar.getAbsolutePath().replace(runnedJar.getName(), "") + "/MCBootstrap/");
         configFile = new File(dataFolder, "config.yml");
+        extensionsFolder = new File(dataFolder, "extensions");
     }
 
     public static void loadFromConfig() throws Exception {
@@ -67,27 +65,11 @@ public class Settings {
     }
 
     public static void setupFiles() throws IOException {
-        if (dataFolder.mkdirs()) MCBootstrap.getLogger().debug("Main folder created: " + dataFolder.getAbsolutePath());
+        dataFolder.mkdirs(); extensionsFolder.mkdirs();
         if (!configFile.exists()) {
             configFile.createNewFile();
             BasicUtils.copyResourceFile(configFile);
             MCBootstrap.getLogger().debug("Config file created: " + configFile.getAbsolutePath());
-        }
-        File customPolicyFile = new File(Settings.getDataFolder(), "CUSTOM_FILES_POLICY.java");
-        if (customPolicyFile.exists()) {
-            MCBootstrap.getLogger().debug("Custom files policy found! Loading...");
-            try {
-                URLClassLoader loader = new URLClassLoader(new URL[]{customPolicyFile.toURI().toURL()});
-                Class<? extends UniqueFilesPolicy> policyClass = loader.loadClass(customPolicyFile.getName()).asSubclass(UniqueFilesPolicy.class);
-                CUSTOM_POLICY = policyClass.newInstance();
-                MCBootstrap.getLogger().debug("Custom files policy successfully loaded!");
-            }
-            catch (ClassCastException ex) {
-                MCBootstrap.getLogger().warn("Custom files policy class isn't a UniqueFilesPolicy instance!");
-            }
-            catch (ReflectiveOperationException | MalformedURLException ex) {
-                MCBootstrap.getLogger().warn("An error occured while loading custom policy class!" + ex.getMessage());
-            }
         }
     }
 
@@ -101,6 +83,10 @@ public class Settings {
 
     public static File getConfigFile() {
         return configFile;
+    }
+
+    public static File getExtensionsFolder() {
+        return extensionsFolder;
     }
 
     public static File getRunnedJar() {
@@ -170,5 +156,16 @@ public class Settings {
         return primaryBootingServer.getUniqueFiles().listFiles()[BasicUtils.RANDOM.nextInt(bound)];
     };
     static UniqueFilesPolicy CUSTOM_POLICY = (primaryBootingServer, forObject) -> null;
+
+    public static void setCustomPolicy(UniqueFilesPolicy customPolicy) {
+        CUSTOM_POLICY = customPolicy;
+    }
+
+    public static UniqueFilesPolicy getUniqueFilesPolicy(String name) {
+        if (name.equalsIgnoreCase("inorder")) return Settings.INORDER_POLICY;
+        else if (name.equalsIgnoreCase("random")) return Settings.RANDOM_POLICY;
+        else if (name.equalsIgnoreCase("custom")) return Settings.CUSTOM_POLICY;
+        else return null;
+    }
 
 }

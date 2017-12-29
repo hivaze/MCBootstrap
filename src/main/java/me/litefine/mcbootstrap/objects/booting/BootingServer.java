@@ -54,7 +54,7 @@ public class BootingServer extends BootingObject {
             new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", javaCommand + (customPort != -1 ? " -p " + customPort : ""))
                     .directory(directory).inheritIO().start();
         } catch (IOException e) {
-            MCBootstrap.getLogger().error("An error occured while booting server '" + name + "'", e.getMessage());
+            MCBootstrap.getLogger().error("An error occured while booting server '" + name + "' - " + e.getMessage());
         }
     }
 
@@ -65,7 +65,7 @@ public class BootingServer extends BootingObject {
             new ProcessBuilder("screen", "-p", "0", "-S", screenID + "." + screenName, "-X", "eval", "stuff \"stop\"\\015").inheritIO().start();
             temporaryBootingFlag = true;
         } catch (IOException e) {
-            MCBootstrap.getLogger().error("Can't stop screen for " + name, e.getMessage());
+            MCBootstrap.getLogger().error("Can't stop screen for '" + name + "' - " + e.getMessage());
         }
     }
 

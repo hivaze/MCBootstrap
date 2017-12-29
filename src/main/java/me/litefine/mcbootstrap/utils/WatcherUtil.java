@@ -1,5 +1,6 @@
 package me.litefine.mcbootstrap.utils;
 
+import me.litefine.mcbootstrap.extensions.ExtensionsManager;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
 import me.litefine.mcbootstrap.objects.booting.BootingServer;
@@ -38,12 +39,14 @@ public class WatcherUtil {
                         if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
                             if (server != null && !server.isBooted()) {
                                 server.setScreenID(uniqueID);
+                                ExtensionsManager.getExtensions().forEach(extension -> extension.onServerStartup(server));
                                 MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' created.");
                             }
                         }
                         if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
                             if (server != null && server.isBooted()) {
                                 server.setScreenID(-1);
+                                ExtensionsManager.getExtensions().forEach(extension -> extension.onServerShutdown(server));
                                 MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' deleted.");
                             }
                         }
@@ -51,7 +54,7 @@ public class WatcherUtil {
                     key.reset();
                 }
             } catch (InterruptedException e) {
-                MCBootstrap.getLogger().error("An error in screens directory watcher", e.getMessage());
+                MCBootstrap.getLogger().error("An error in screens directory watcher - " + e.getMessage());
             }
         }, "Watcher Thread").start();
     }

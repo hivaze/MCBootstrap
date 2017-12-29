@@ -25,7 +25,7 @@ public class ConsoleManager {
                     String command = reader.readLine();
                     CommandsManager.execureCommand(command);
                 } catch (Exception e) {
-                    MCBootstrap.getLogger().error("An error in console reader", e.getMessage());
+                    MCBootstrap.getLogger().error("An error in console reader - " + e.getMessage());
                 }
             }
         }, "Console Thread");
