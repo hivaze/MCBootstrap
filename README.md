@@ -5,5 +5,6 @@ MCBootstrap it is a very **customizable** and **powerfull** tool for **minecraft
 ## Features of work
 * Easy to use. All settings are in one file _config.yml_.
 * Easy to manage. This application uses console with commands like minecraft server.
-* Logging of all events. The logs folder is updated every time the application starts.
+* Total and clear logging. The logging system create new file at each system startuo
 * Very convenient for minigames networks. MCBootstrap can generate many servers based on one.
+* Extensions system. If you are a developer, you can supplement this system for yourself.
