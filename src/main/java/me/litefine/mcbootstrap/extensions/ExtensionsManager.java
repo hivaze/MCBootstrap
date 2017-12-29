@@ -47,6 +47,10 @@ public class ExtensionsManager {
         }
     }
 
+    public static void disableExtensions() {
+        extensions.forEach(extension -> extension.getExecutorService().shutdown());
+    }
+
     public static List<Extension> getExtensions() {
         return Collections.unmodifiableList(extensions);
     }

@@ -55,6 +55,7 @@ public class MCBootstrap {
         logger.info("Shutdown...");
         ExtensionsManager.getExtensions().forEach(Extension::onSystemShutdown);
         if (stopServers) MCBootstrap.stopAllObjects();
+        ExtensionsManager.disableExtensions();
         System.exit(0);
     }
 
