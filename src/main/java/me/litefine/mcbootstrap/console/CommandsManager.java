@@ -41,7 +41,7 @@ public class CommandsManager {
             System.out.println(("MCBootstrap by LITEFINE v1.0-SNAPSHOT"));
             System.out.println();
             System.out.println(" Standalone application to control minecraft servers start & stop");
-            System.out.println(" Wiki: {URL}");
+            System.out.println(" Project on GitHub: https://github.com/LITEFINE/MCBootstrap");
             System.out.println();
             System.out.println(" Known commands:");
             System.out.println(" - 'info' -> Shows basic information about application work");

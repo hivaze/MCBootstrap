@@ -29,7 +29,7 @@ Booting Objects:
     directory: '/example/servers/serversGroup1/'
   serversGroup2:
     type: GROUP
-    priority: NORMAL
+    priority: HIGHEST
     firstPort: 25600
     autoRestart: true
     javaCommand: 'java -jar Server.jar'

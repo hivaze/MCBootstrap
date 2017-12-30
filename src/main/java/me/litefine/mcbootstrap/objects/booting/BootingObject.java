@@ -82,7 +82,7 @@ public abstract class BootingObject {
 
     public enum Priority {
 
-        LOW(16), NORMAL(32), HIGH(64);
+        LOWEST(8), LOW(16), NORMAL(32), HIGH(64), HIGHEST(128);
 
         private int points;
 

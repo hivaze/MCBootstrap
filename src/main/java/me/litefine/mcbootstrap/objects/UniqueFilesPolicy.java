@@ -10,6 +10,6 @@ import java.io.File;
  */
 public interface UniqueFilesPolicy {
 
-    File getNextUniqueFolder(PrimaryBootingServer primaryBootingServer, BootingServer forObject);
+    File getUniqueFolder(PrimaryBootingServer primaryBootingServer, BootingServer forObject);
 
 }

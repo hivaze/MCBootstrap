@@ -94,7 +94,7 @@ public class PrimaryBootingServer extends BootingObject {
     void clonePrimaryDirectory(BootingServer forObject) throws IOException {
         MCBootstrap.getLogger().info("Generation of clone clone of '" + name + "' primary for server '" + forObject.name + "' in " + forObject.directory.getAbsolutePath());
         long time = System.currentTimeMillis();
-        File uniqueFilesFrom = uniqueFilesPolicy.getNextUniqueFolder(this, forObject);
+        File uniqueFilesFrom = uniqueFilesPolicy.getUniqueFolder(this, forObject);
         Function<Path, Path> relationMaker = path ->
                 Paths.get(forObject.directory.getAbsolutePath() + "/" + directory.toPath().getParent().relativize(path));
         Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>() {
