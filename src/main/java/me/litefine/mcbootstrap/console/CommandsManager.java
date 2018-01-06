@@ -3,7 +3,6 @@ package me.litefine.mcbootstrap.console;
 import me.litefine.mcbootstrap.extensions.ExtensionsManager;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
-import me.litefine.mcbootstrap.objects.CommandConsumer;
 import me.litefine.mcbootstrap.objects.booting.BootingGroup;
 import me.litefine.mcbootstrap.objects.booting.BootingObject;
 import me.litefine.mcbootstrap.objects.booting.BootingServer;

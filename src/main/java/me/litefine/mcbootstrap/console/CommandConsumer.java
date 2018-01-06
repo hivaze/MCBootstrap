@@ -1,4 +1,4 @@
-package me.litefine.mcbootstrap.objects;
+package me.litefine.mcbootstrap.console;
 
 /**
  * Created by LITEFINE IDEA on 03.12.17.
