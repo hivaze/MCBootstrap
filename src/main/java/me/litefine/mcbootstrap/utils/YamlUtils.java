@@ -32,23 +32,23 @@ public class YamlUtils {
     }
 
     public static boolean getBooleanValue(String path, Map source) {
-        Object getted = getValue(path, source);
-        return Boolean.valueOf(String.valueOf(getted));
+        Object retrieved = getValue(path, source);
+        return Boolean.valueOf(String.valueOf(retrieved));
     }
 
     public static String getStringValue(String path, Map source) {
-        Object getted = getValue(path, source);
-        return String.valueOf(getted);
+        Object retrieved = getValue(path, source);
+        return String.valueOf(retrieved);
     }
 
     public static long getLongValue(String path, Map source) {
-        Object getted = getValue(path, source);
-        return Long.parseLong(String.valueOf(getted));
+        Object retrieved = getValue(path, source);
+        return Long.parseLong(String.valueOf(retrieved));
     }
 
     public static Map getMapValue(String path, Map source) {
-        Object getted = getValue(path, source);
-        return (Map) getted;
+        Object retrieved = getValue(path, source);
+        return (Map) retrieved;
     }
 
     public static Object getValue(String path, Map source) {
