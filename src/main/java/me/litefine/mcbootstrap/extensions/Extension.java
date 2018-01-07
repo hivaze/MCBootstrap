@@ -15,7 +15,11 @@ public class Extension {
 
     public void onSystemStartup() {}
 
+    public void onSystemStartupFinished() {}
+
     public void onSystemShutdown() {}
+
+    public void onSystemFinalizeShutdown() {}
 
     public void onServerStartup(BootingServer object) {}
 

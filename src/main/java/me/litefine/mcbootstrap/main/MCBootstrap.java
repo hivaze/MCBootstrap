@@ -49,12 +49,14 @@ public class MCBootstrap {
         logger.debug("Local screen utility folder: " + Settings.getScreensFolder().getAbsolutePath());
         logger.info("MCBootstrap started in " + (System.currentTimeMillis() - time) + " ms.");
         ConsoleManager.getConsoleThread().start();
+        ExtensionsManager.getExtensions().forEach(Extension::onSystemStartupFinished);
     }
 
     public static void shutdown(boolean stopServers) {
         logger.info("Shutdown...");
         ExtensionsManager.getExtensions().forEach(Extension::onSystemShutdown);
         if (stopServers) MCBootstrap.stopAllObjects();
+        ExtensionsManager.getExtensions().forEach(Extension::onSystemFinalizeShutdown);
         ExtensionsManager.disableExtensions();
         System.exit(0);
     }
