@@ -13,7 +13,7 @@ public class BootingAPI {
 
     private static final List<BootingObject> bootingObjects = new ArrayList<>();
 
-    public static synchronized void startAllObjects() {
+    public static void startAllObjects() {
         final int[] count = {0};
         MCBootstrap.getLogger().info("Booting all booting objects...");
         bootingObjects.forEach(bootingObject -> {
@@ -31,7 +31,7 @@ public class BootingAPI {
         MCBootstrap.getLogger().info(count[0] + " objects started");
     }
 
-    public static synchronized void stopAllObjects() {
+    public static void stopAllObjects() {
         MCBootstrap.getLogger().info("Stopping all booting objects (" + bootingObjects.size() + ")...");
         if (Settings.reverseOrderOnStop()) {
             bootingObjects.stream()
