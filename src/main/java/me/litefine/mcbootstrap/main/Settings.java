@@ -27,7 +27,7 @@ public class Settings {
         try {
             Process request = Runtime.getRuntime().exec("screen -ls");
             request.waitFor();
-            String folder = new Scanner(request.getInputStream()).findWithinHorizon("\\/(.*?)\\/(.*)\\b", Integer.MAX_VALUE);
+            String folder = new Scanner(request.getInputStream()).findWithinHorizon("\\s\\/(.*?)\\/(.*)\\b", Integer.MAX_VALUE).trim();
             screensFolder = new File(folder);
             WatcherUtil.startWatcherThread();
         } catch (IOException | InterruptedException e) {
