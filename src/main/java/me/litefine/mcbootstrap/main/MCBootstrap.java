@@ -43,10 +43,10 @@ public class MCBootstrap {
         ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(extension::onSystemStartupFinished));
     }
 
-    public static void shutdown(boolean stopServers) {
+    public static void shutdown(boolean stopObjects) {
         logger.info("Shutdown...");
         ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(extension::onSystemShutdown));
-        if (stopServers) BootingAPI.stopAllObjects();
+        if (stopObjects) BootingAPI.stopAllObjects();
         ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(extension::onSystemFinalizeShutdown));
         ExtensionsManager.disableExtensions();
         System.exit(0);

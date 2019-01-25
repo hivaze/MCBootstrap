@@ -63,6 +63,8 @@ public class CommandsManager {
             System.out.println(" 'start <all/objectName>' - start all or one specific object");
             System.out.println(" 'stop <all/objectName>' - stop all or one specific object");
             System.out.println(" 'extensions' - information about active extensions");
+            System.out.println(" 'shutdown' - full and safe shutdown with all objects stopping");
+            System.out.println(" 'systemexit' - quick and NOT SAFE shutdown");
             System.out.println();
         });
         commands.put("status", args -> {
