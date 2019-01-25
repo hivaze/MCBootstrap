@@ -18,13 +18,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Random;
 
 public class BasicUtils {
-
-    public static final Random RANDOM = new Random();
 
     public static void deleteDirectory(File directory, boolean justClear) throws IOException {
         MCBootstrap.getLogger().debug("Directory removal " + directory.getAbsolutePath());
@@ -57,7 +52,7 @@ public class BasicUtils {
         if (!group.getChildServers().isEmpty()) {
             StringBuilder builder = new StringBuilder("(");
             group.getChildServers().forEach(bootingServer -> {
-                if (bootingServer.isBooted()) builder.append(Ansi.ansi().fg(Ansi.Color.GREEN).a(bootingServer.getName()).reset());
+                if (bootingServer.isBooted()) builder.append(colorize(bootingServer.getName(), Ansi.Color.GREEN));
                 else builder.append(bootingServer.getName());
                 builder.append(", ");
             });
@@ -69,7 +64,7 @@ public class BasicUtils {
         if (!primary.getClonedServers().isEmpty()) {
             StringBuilder builder = new StringBuilder("(");
             primary.getClonedServers().forEach(bootingServer -> {
-                if (bootingServer.isBooted()) builder.append(Ansi.ansi().fg(Ansi.Color.GREEN).a(bootingServer.getName()).reset());
+                if (bootingServer.isBooted()) builder.append(colorize(bootingServer.getName(), Ansi.Color.GREEN));
                 else builder.append(bootingServer.getName());
                 builder.append(", ");
             });
@@ -92,14 +87,6 @@ public class BasicUtils {
         return (double) (int) ((tmp - (int) tmp) >= 0.5d ? tmp + 1 : tmp) / pow;
     }
 
-    public static String join(Collection collection, String separator) {
-        StringBuilder builder = new StringBuilder();
-        for (Iterator iterator = collection.iterator(); iterator.hasNext(); builder.append(iterator.next())) {
-            if (builder.length() != 0) builder.append(separator);
-        }
-        return builder.toString();
-    }
-
     public static String getScreenNameFor(BootingApplication object) {
         String pattern = Settings.getScreenNamePattern().trim();
         if (!pattern.isEmpty()) {
@@ -107,10 +94,6 @@ public class BasicUtils {
             pattern = pattern.replace("%priority%", object.getPriority().name());
         } else pattern = "MCB-" + object.getName();
         return pattern;
-    }
-
-    public static String removeExtraSpaces(String string) {
-        return string.trim().replaceAll("\\s+", " ");
     }
 
     public static String[] getArguments(String string) {

@@ -20,7 +20,7 @@ public class CommandsManager {
 
     public static void execureCommand(String command) {
         if (!command.trim().isEmpty()) {
-            command = BasicUtils.removeExtraSpaces(command);
+            command = command.trim().replaceAll("\\s+", " ");
             String[] args = BasicUtils.getArguments(command);
             command = command.split("\\s")[0].toLowerCase();
             if (commands.containsKey(command)) {
@@ -102,8 +102,8 @@ public class CommandsManager {
                     System.out.println(" Object type: " + BasicUtils.bolding(object.getClass().getSimpleName()));
                     System.out.println(" Priority: " + object.getPriority());
                     System.out.println(" Directory: '" + object.getDirectory().getAbsolutePath() + "'");
-                    System.out.println(" Has auto restart: " + (object.hasAutoRestartProperty() ? "TRUE" : "FALSE"));
-                    System.out.println(" Start command: '" + object.getBootCommand() + "'");
+                    System.out.println(" Has auto restart: " + (object.hasAutoRestartProperty() ? BasicUtils.colorize("yes", Ansi.Color.GREEN) : "nope"));
+                    System.out.println(" Boot command: '" + object.getBootCommand() + "'");
                     System.out.println(" Stop command: " + (object.hasStopCommand() ? "'" + object.getStopCommand() + "'" : "NOT DEFINED"));
                     System.out.println();
                     if (object instanceof BootingApplication) {

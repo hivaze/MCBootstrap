@@ -2,9 +2,9 @@ package me.litefine.mcbootstrap.objects;
 
 import me.litefine.mcbootstrap.objects.booting.BootingServer;
 import me.litefine.mcbootstrap.objects.booting.PrimaryBootingServer;
-import me.litefine.mcbootstrap.utils.BasicUtils;
 
 import java.io.File;
+import java.util.concurrent.ThreadLocalRandom;
 
 public interface UniqueFilesPolicy {
 
@@ -17,7 +17,7 @@ public interface UniqueFilesPolicy {
 
     UniqueFilesPolicy RANDOM_POLICY = (primaryBootingServer, forObject) -> {
         int bound = primaryBootingServer.getUniqueFilesFolder().listFiles().length - 1;
-        return primaryBootingServer.getUniqueFilesFolder().listFiles()[BasicUtils.RANDOM.nextInt(bound)];
+        return primaryBootingServer.getUniqueFilesFolder().listFiles()[ThreadLocalRandom.current().nextInt(bound)];
     };
 
     static UniqueFilesPolicy getUniqueFilesPolicy(String name) {
