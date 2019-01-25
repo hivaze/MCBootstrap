@@ -45,6 +45,14 @@ public class BasicUtils {
         });
     }
 
+    public static Ansi colorize(String string, Ansi.Color color) {
+        return Ansi.ansi().fgBright(color).a(string).reset();
+    }
+
+    public static Ansi bolding(String string) {
+        return Ansi.ansi().bold().a(string).reset();
+    }
+
     public static String getServersString(BootingGroup group) {
         if (!group.getChildServers().isEmpty()) {
             StringBuilder builder = new StringBuilder("(");

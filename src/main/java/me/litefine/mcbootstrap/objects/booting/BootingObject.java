@@ -12,7 +12,7 @@ public abstract class BootingObject {
 
     protected Priority priority = Priority.NORMAL;
     protected File directory;
-    protected String name, startCommand, stopCommand = null;
+    protected String name, bootCommand, stopCommand = null;
     protected boolean autoRestart = false;
 
     protected static Predicate<File> directoryValidator = file -> file.isDirectory() && file.listFiles() != null;
@@ -21,9 +21,9 @@ public abstract class BootingObject {
         if (BootingAPI.getBootingObjectByName(name, false).isPresent())
             throw new InvalidParameterException("Object with name '" + name + "' already exists!");
         this.name = name;
-        this.startCommand = properties.get("startCommand");
+        this.bootCommand = properties.get("bootCommand");
         this.directory = new File(properties.get("directory"));
-        if (properties.containsKey("stopCommand")) startCommand = properties.get("stopCommand");
+        if (properties.containsKey("stopCommand")) stopCommand = properties.get("stopCommand");
         if (properties.containsKey("autoRestart")) autoRestart = Boolean.valueOf(properties.get("autoRestart"));
         if (properties.containsKey("priority")) this.priority = Priority.valueOf(properties.get("priority").toUpperCase());
         if (directoryValidator.test(directory)) BootingAPI.getBootingObjects().add(this);
@@ -34,7 +34,7 @@ public abstract class BootingObject {
         if (directoryValidator.test(directory)) {
             this.directory = directory;
             this.name = name;
-            this.startCommand = processCommand;
+            this.bootCommand = processCommand;
             this.priority = priority;
         } else throw new InvalidParameterException("Invalid directory!");
     }
@@ -51,8 +51,8 @@ public abstract class BootingObject {
         return name;
     }
 
-    public String getStartCommand() {
-        return startCommand;
+    public String getBootCommand() {
+        return bootCommand;
     }
 
     public boolean hasStopCommand() {

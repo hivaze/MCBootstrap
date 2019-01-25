@@ -3,6 +3,8 @@ package me.litefine.mcbootstrap.objects.booting;
 import me.litefine.mcbootstrap.extensions.ExtensionsManager;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
+import me.litefine.mcbootstrap.utils.BasicUtils;
+import org.fusesource.jansi.Ansi;
 
 import java.io.File;
 import java.util.*;
@@ -28,7 +30,7 @@ public class BootingGroup extends BootingObject {
 
     @Override
     public synchronized void bootObject() {
-        MCBootstrap.getLogger().info("Launch group of servers '" + name + "', servers: " + childServers.size());
+        MCBootstrap.getLogger().info("Launch group of servers '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', servers: " + childServers.size());
         childServers.forEach(bootingServer -> {
             if (!bootingServer.isBooted()) {
                 bootingServer.bootObject();
@@ -44,7 +46,7 @@ public class BootingGroup extends BootingObject {
 
     @Override
     public synchronized void stopObject() {
-        MCBootstrap.getLogger().info("Stopping group of servers '" + name + "', servers: " + childServers.size());
+        MCBootstrap.getLogger().info("Stopping group of servers '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', servers: " + childServers.size());
         childServers.forEach(bootingServer -> {
             if (bootingServer.isBooted())
                 bootingServer.stopObject();

@@ -21,49 +21,17 @@ public class BootingServer extends BootingApplication {
     }
 
     BootingServer(BootingGroup bootingGroup, String name, File directory) {
-        super(directory, name, bootingGroup.startCommand, bootingGroup.priority);
+        super(directory, name, bootingGroup.bootCommand, bootingGroup.priority);
         this.parentObject = bootingGroup;
         this.autoRestart = bootingGroup.autoRestart;
         if (bootingGroup.hasFirstPort()) this.customPort = bootingGroup.getFirstPort() + bootingGroup.getChildServers().size();
     }
 
     BootingServer(PrimaryBootingServer primaryServer, String name, File directory) {
-        super(directory, name, primaryServer.startCommand, primaryServer.priority);
+        super(directory, name, primaryServer.bootCommand, primaryServer.priority);
         this.parentObject = primaryServer;
         this.autoRestart = primaryServer.autoRestart;
         this.customPort = primaryServer.getFirstPort() + primaryServer.getClonedServers().indexOf(this);
-    }
-
-    @Override
-    public synchronized void bootObject() {
-        try {
-            temporaryBootingFlag = true;
-            MCBootstrap.getLogger().info("Launch server '" + name + "', screen: " + screenName);
-            if (parentObject instanceof PrimaryBootingServer) {
-                PrimaryBootingServer pServer = (PrimaryBootingServer) parentObject;
-                if (directory.exists()) BasicUtils.deleteDirectory(directory, true);
-                else directory.mkdirs();
-                directory.deleteOnExit();
-                pServer.clonePrimaryDirectory(this);
-            }
-            new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", "\"" + startCommand + (customPort != -1 ? " -p " + customPort : "\""))
-                    .directory(directory).inheritIO().start();
-        } catch (IOException e) {
-            MCBootstrap.getLogger().error("An error occurred while booting server '" + name + "' - " + e.getMessage());
-            temporaryBootingFlag = false;
-        }
-    }
-
-    @Override
-    public synchronized void stopObject() {
-        if (temporaryBootingFlag) return;
-        try {
-            MCBootstrap.getLogger().info("Stopping server '" + name + "', screen: " + screenID + "." + screenName);
-            if (hasStopCommand()) new ProcessBuilder("screen", "-p", "0", "-S", screenID + "." + screenName, "-X", "eval", "stuff", "\"" + stopCommand +"\"\\015").inheritIO().start();
-            else new ProcessBuilder("screen", "-X", "-S", screenID + "." + screenName, "quit").inheritIO().start();
-        } catch (IOException e) {
-            MCBootstrap.getLogger().error("Can't stop screen for server '" + name + "' - " + e.getMessage());
-        }
     }
 
     @Override

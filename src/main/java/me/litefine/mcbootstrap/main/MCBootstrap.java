@@ -20,7 +20,7 @@ public class MCBootstrap {
         System.out.println("Loading libraries, please wait...");
     }
 
-    private static final Logger logger = LogManager.getLogger(MCBootstrap.class);
+    private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) {
         logger.info("Startup initialization of the MCBootstrap's engine!");
