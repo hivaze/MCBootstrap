@@ -10,3 +10,5 @@ This is very simple and powerful standalone tool for **minecraft** servers **adm
 * Total and clear logging. The logging system create new file at each system startuo
 * Very convenient for minigames networks. **MCBootstrap can generate many servers based on one** (useful for arenas generation).
 * **Extensions system**. If you are a developer, you can supplement this system for yourself.
+
+![Logo](https://i.ibb.co/LdS9n79/2019-01-26-0-49-47.png "Screenshot of work")
