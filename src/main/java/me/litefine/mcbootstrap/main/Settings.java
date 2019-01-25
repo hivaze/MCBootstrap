@@ -1,10 +1,6 @@
 package me.litefine.mcbootstrap.main;
 
-import me.litefine.mcbootstrap.objects.UniqueFilesPolicy;
-import me.litefine.mcbootstrap.objects.booting.BootingGroup;
 import me.litefine.mcbootstrap.objects.booting.BootingObject;
-import me.litefine.mcbootstrap.objects.booting.BootingServer;
-import me.litefine.mcbootstrap.objects.booting.PrimaryBootingServer;
 import me.litefine.mcbootstrap.utils.BasicUtils;
 import me.litefine.mcbootstrap.utils.WatcherUtil;
 import me.litefine.mcbootstrap.utils.YamlUtils;
@@ -13,16 +9,14 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
-/**
- * Created by LITEFINE IDEA on 26.11.17.
- */
 public class Settings {
 
     private static File dataFolder, configFile, extensionsFolder, runnedJar, screensFolder;
-    private static final List<BootingObject> bootingObjects = new ArrayList<>();
 
     private static long startDelay;
     private static String screenNamePattern;
@@ -53,15 +47,15 @@ public class Settings {
             Configurator.setLevel(MCBootstrap.class.getCanonicalName(), Level.DEBUG);
             MCBootstrap.getLogger().debug("Logger debug mode enabled!");
         }
-        bootAllOnStart = YamlUtils.getBooleanValue("Settings.bootAllOnStart", mapRepresentation);
+        bootAllOnStart = YamlUtils.getBooleanValue("Settings.bootAllObjectsOnStart", mapRepresentation);
         screenNamePattern = YamlUtils.getStringValue("Settings.screenNamePattern", mapRepresentation);
         startDelay = YamlUtils.getLongValue("Settings.eachServerStartDelay", mapRepresentation);
         reverseOrderOnStop = YamlUtils.getBooleanValue("Settings.reverseStartOrderOnStop", mapRepresentation);
         Map<String, Map<String, String>> objects = YamlUtils.getMapValue("Booting Objects", mapRepresentation);
         MCBootstrap.getLogger().info("Loading booting objects from config...");
         objects.forEach(BootingObject::from);
-        bootingObjects.sort(Comparator.comparingInt((BootingObject object) -> object.getPriority().getPoints()).reversed());
-        MCBootstrap.getLogger().info(bootingObjects.size() + " objects for booting loaded from config.");
+        BootingAPI.getBootingObjects().sort(Comparator.comparingInt((BootingObject object) -> object.getPriority().getPoints()).reversed());
+        MCBootstrap.getLogger().info(BootingAPI.getBootingObjects().size() + " objects for booting loaded from config.");
     }
 
     public static void setupFiles() throws IOException {
@@ -107,65 +101,6 @@ public class Settings {
 
     public static String getScreenNamePattern() {
         return screenNamePattern;
-    }
-
-
-    // Booting objects part
-    public static List<BootingObject> getBootingObjects() {
-        return bootingObjects;
-    }
-
-    public static BootingObject getBootingObjectByName(String name) {
-        return bootingObjects.stream().filter(bootingObject -> bootingObject.getName().equals(name)).findFirst().orElse(null);
-    }
-
-    public static List<String> getBootingObjectsNames() {
-        return bootingObjects.stream().map(BootingObject::getName).collect(Collectors.toList());
-    }
-
-    // Booting servers part
-    public static List<BootingServer> getBootingServers() {
-        return bootingObjects.stream().filter(BootingServer.class::isInstance).map(BootingServer.class::cast).collect(Collectors.toList());
-    }
-
-    public static List<BootingServer> getRunningServers() {
-        return bootingObjects.stream().filter(BootingObject::isRunningServer).map(BootingServer.class::cast).collect(Collectors.toList());
-    }
-
-    public static BootingServer getServerByScreenName(String screenName) {
-        return getBootingServers().stream().filter(server -> server.getScreenName().equals(screenName)).findFirst().orElse(null);
-    }
-
-    // Booting groups part
-    public static List<BootingGroup> getBootingGroups() {
-        return bootingObjects.stream().filter(BootingGroup.class::isInstance).map(BootingGroup.class::cast).collect(Collectors.toList());
-    }
-
-    // Booting primaries part
-    public static List<PrimaryBootingServer> getPrimaryBootingServers() {
-        return bootingObjects.stream().filter(PrimaryBootingServer.class::isInstance).map(PrimaryBootingServer.class::cast).collect(Collectors.toList());
-    }
-
-    // Unique files policies
-    static final UniqueFilesPolicy INORDER_POLICY = (primaryBootingServer, forObject) -> {
-        int index = primaryBootingServer.getClonedServers().indexOf(forObject);
-        return primaryBootingServer.getUniqueFiles().listFiles()[index];
-    };
-    static final UniqueFilesPolicy RANDOM_POLICY = (primaryBootingServer, forObject) -> {
-        int bound = primaryBootingServer.getUniqueFiles().listFiles().length - 1;
-        return primaryBootingServer.getUniqueFiles().listFiles()[BasicUtils.RANDOM.nextInt(bound)];
-    };
-    static UniqueFilesPolicy CUSTOM_POLICY = (primaryBootingServer, forObject) -> null;
-
-    public static void setCustomPolicy(UniqueFilesPolicy customPolicy) {
-        CUSTOM_POLICY = customPolicy;
-    }
-
-    public static UniqueFilesPolicy getUniqueFilesPolicy(String name) {
-        if (name.equalsIgnoreCase("inorder")) return Settings.INORDER_POLICY;
-        else if (name.equalsIgnoreCase("random")) return Settings.RANDOM_POLICY;
-        else if (name.equalsIgnoreCase("custom")) return Settings.CUSTOM_POLICY;
-        else return null;
     }
 
 }

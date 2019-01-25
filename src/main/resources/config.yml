@@ -2,7 +2,7 @@
 # MCBootstrap main configuration file
 
 Settings:
-  bootAllOnStart: false
+  bootAllObjectsOnStart: false
   enableDebug: true
   screenNamePattern: 'MCB-%name%'
   eachServerStartDelay: 5
@@ -12,35 +12,46 @@ Settings:
 Booting Objects:
   server1:
     type: SERVER
-    priority: NORMAL
-    javaCommand: 'java -jar Server.jar'
+    priority: NORMAL # Control startup order of all objects, NORMAL by default
+    bootCommand: 'java -jar Server.jar' # Shell command executed in new screen
+    stopCommand: 'stop' # Server termination command, empty by default
     directory: '/example/servers/server1/'
   server2:
     type: SERVER
     priority: HIGH
-    port: 25565
-    autoRestart: true
-    javaCommand: 'java -jar Server.jar'
+    port: 25565 # if not specified, it will be read from the server.properties or from another configuration files
+    autoRestart: true # Start this object again after screen shutdown, disabled by default
+    bootCommand: 'java -jar Server.jar'
+    stopCommand: 'stop'
     directory: '/example/servers/server2/'
   serversGroup1:
     type: GROUP
     priority: NORMAL
-    javaCommand: 'java -jar Server.jar'
+    bootCommand: 'java -jar Server.jar'
+    stopCommand: 'stop'
     directory: '/example/servers/serversGroup1/'
   serversGroup2:
     type: GROUP
     priority: HIGHEST
     firstPort: 25600
     autoRestart: true
-    javaCommand: 'java -jar Server.jar'
+    bootCommand: 'java -jar Server.jar'
+    stopCommand: 'stop'
     directory: '/example/servers/serversGroup2/'
   primaryServer:
     type: PRIMARY_SERVER
     priority: LOW
-    uniqueFilesPolicy: RANDOM
-    javaCommand: 'java -jar MinigameServer.jar'
-    copiesCount: 5
+    uniqueFilesPolicy: RANDOM # Can be 'INORDER', 'RANDOM' or 'CUSTOM' (extension). More information on wiki
+    bootCommand: 'java -jar MinigameServer.jar'
+    stopCommand: 'stop'
+    copiesCount: 5 # Number of cloned servers to generate
     firstPort: 30000
     autoRestart: false
-    directory: '/example/servers/primaryServerDirecory/'
-    generationDirectory: '/example/servers/arenas/'
+    directory: '/example/servers/myminigame/primaryServerDirecory/' # Original server dirictory
+    generationDirectory: '/example/servers/myminigame/arenas/' # Cloned servers folders will be generated here
+  application1:
+    type: APPLICATION # Means you can start anything you want (scripts, standalone aps, services and etc)
+    priority: HIGHEST
+    bootCommand: 'java -jar SomeStandaloneScriptOrApplication.jar'
+    stopCommand: 'break' # Don't use stopCommand if your app or script doesn't support that
+    directory: '/example/applications/app1/'

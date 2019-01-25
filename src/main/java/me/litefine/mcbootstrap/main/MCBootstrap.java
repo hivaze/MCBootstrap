@@ -1,9 +1,7 @@
 package me.litefine.mcbootstrap.main;
 
 import me.litefine.mcbootstrap.console.ConsoleManager;
-import me.litefine.mcbootstrap.extensions.Extension;
 import me.litefine.mcbootstrap.extensions.ExtensionsManager;
-import me.litefine.mcbootstrap.objects.booting.BootingServer;
 import me.litefine.mcbootstrap.utils.WatcherUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,14 +9,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
-
-/**
- * Created by LITEFINE IDEA on 26.11.17.
- */
 public class MCBootstrap {
 
     static {
@@ -43,48 +34,22 @@ public class MCBootstrap {
             logger.error("An unexpected error occurred during startup", ex);
             System.exit(103);
         }
-        WatcherUtil.determineLaunchedObjects();
-        ExtensionsManager.getExtensions().forEach(Extension::onSystemStartup);
-        if (Settings.bootAllOnStart()) MCBootstrap.startAllObjects();
+        WatcherUtil.determineLaunchedApplications();
+        ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(extension::onSystemStartup));
+        if (Settings.bootAllOnStart()) BootingAPI.startAllObjects();
         logger.debug("Local screen utility folder: " + Settings.getScreensFolder().getAbsolutePath());
         logger.info("MCBootstrap started in " + (System.currentTimeMillis() - time) + " ms.");
         ConsoleManager.getConsoleThread().start();
-        ExtensionsManager.getExtensions().forEach(Extension::onSystemStartupFinished);
+        ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(extension::onSystemStartupFinished));
     }
 
     public static void shutdown(boolean stopServers) {
         logger.info("Shutdown...");
-        ExtensionsManager.getExtensions().forEach(Extension::onSystemShutdown);
-        if (stopServers) MCBootstrap.stopAllObjects();
-        ExtensionsManager.getExtensions().forEach(Extension::onSystemFinalizeShutdown);
+        ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(extension::onSystemShutdown));
+        if (stopServers) BootingAPI.stopAllObjects();
+        ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(extension::onSystemFinalizeShutdown));
         ExtensionsManager.disableExtensions();
         System.exit(0);
-    }
-
-    public static void startAllObjects() {
-        if (Settings.getBootingServers().size() == Settings.getRunningServers().size()) MCBootstrap.getLogger().warn("No booting objects to run!");
-        else Settings.getBootingObjects().forEach(bootingObject -> {
-            if (!bootingObject.isRunningServer()) {
-                bootingObject.bootObject();
-                if (Settings.getStartDelay() > 0 && Settings.getBootingObjects().indexOf(bootingObject) != Settings.getBootingObjects().size()-1) {
-                    try {
-                        MCBootstrap.getLogger().info("Waiting for " + Settings.getStartDelay() * 1000L + " ms (delay)...");
-                        Thread.sleep(Settings.getStartDelay() * 1000L);
-                    } catch (InterruptedException ignored) {}
-                }
-            }
-        });
-    }
-
-    public static void stopAllObjects() {
-        if (Settings.getRunningServers().isEmpty()) MCBootstrap.getLogger().warn("No running objects to stop!");
-        else {
-            if (Settings.reverseOrderOnStop()) {
-                List<BootingServer> reversedCopy = new ArrayList<>(Settings.getRunningServers());
-                reversedCopy.sort(Comparator.comparingInt(object -> object.getPriority().getPoints()));
-                reversedCopy.forEach(BootingServer::stopObject);
-            } else Settings.getRunningServers().forEach(BootingServer::stopObject);
-        }
     }
 
     public static Logger getLogger() {

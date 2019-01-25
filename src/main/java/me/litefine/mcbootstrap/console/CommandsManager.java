@@ -1,25 +1,22 @@
 package me.litefine.mcbootstrap.console;
 
 import me.litefine.mcbootstrap.extensions.ExtensionsManager;
+import me.litefine.mcbootstrap.main.BootingAPI;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
-import me.litefine.mcbootstrap.objects.booting.BootingGroup;
-import me.litefine.mcbootstrap.objects.booting.BootingObject;
-import me.litefine.mcbootstrap.objects.booting.BootingServer;
-import me.litefine.mcbootstrap.objects.booting.PrimaryBootingServer;
+import me.litefine.mcbootstrap.objects.UniqueFilesPolicy;
+import me.litefine.mcbootstrap.objects.booting.*;
 import me.litefine.mcbootstrap.utils.BasicUtils;
+import org.fusesource.jansi.Ansi;
 
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by LITEFINE IDEA on 03.12.17.
- */
 public class CommandsManager {
 
-    private static final HashMap<String, CommandConsumer> commands = new HashMap<>();
+    private static final Map<String, CommandConsumer> commands = new ConcurrentHashMap<>();
 
     public static void execureCommand(String command) {
         if (!command.trim().isEmpty()) {
@@ -35,146 +32,155 @@ public class CommandsManager {
     }
 
     public static void registerCommands() {
-        commands.put("help", args -> {
+        commands.put("info", args -> {
             System.out.println();
-            System.out.println(("MCBootstrap by LITEFINE v1.0-SNAPSHOT"));
+            System.out.println("MCBootstrap by LITEFINE v2.0-SNAPSHOT");
+            System.out.println("Type 'help' or visit project wiki for more information");
             System.out.println();
-            System.out.println(" Standalone application to control minecraft servers start & stop");
-            System.out.println(" Project on GitHub: https://github.com/LITEFINE/MCBootstrap");
+            System.out.println(" Extensions loaded: " + ExtensionsManager.getExtensions().size());
+            System.out.println(" Main folder: " + Settings.getDataFolder().getAbsolutePath());
+            System.out.println(" Screens folder: " + Settings.getScreensFolder().getAbsolutePath());
             System.out.println();
-            System.out.println(" Known commands:");
-            System.out.println(" - 'info' -> Shows basic information about application work");
-            System.out.println(" - 'info objects' -> Shows information about booting objects");
-            System.out.println(" - 'info servers' -> Shows information about all booting servers");
-            System.out.println(" - 'info groups' -> Shows information about all booting groups");
-            System.out.println(" - 'info primaries' -> Shows information about all primary booting servers");
-            System.out.println(" - 'info <objectName>' -> Shows all information about specific object");
-            System.out.println(" - 'info extensions' -> Shows all information about loaded extensions");
-            System.out.println(" - 'start <all|objectName> -> Start specific object or all booting objects");
-            System.out.println(" - 'stop <all|objectName> -> Stop specific object or all running objects");
-            System.out.println(" - 'shutdown -> Shutdown application and all running objects");
+            System.out.println(" Uptime: " + BasicUtils.millisToPattern(ManagementFactory.getRuntimeMXBean().getUptime()));
+            System.out.println(" RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576 + " MB");
+            if (ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage() > 0)
+                System.out.println(" System average load: " + BasicUtils.round(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage(), 2));
             System.out.println();
         });
-        commands.put("info", args -> {
+        commands.put("help", args -> {
+            System.out.println();
+            System.out.println("MCBootstrap by LITEFINE v2.0-SNAPSHOT");
+            System.out.println("Project wiki: https://github.com/LITEFINE/MCBootstrap/wiki");
+            System.out.println("> This is very simple and powerful standalone tool");
+            System.out.println("for atomization and improvement of your network management");
+            System.out.println();
+            System.out.println(" Existing commands:");
+            System.out.println(" 'info' - basic information about runtime");
+            System.out.println(" 'help' - this page");
+            System.out.println(" 'status' - basic information about MCBootstrap status");
+            System.out.println(" 'status list' - all objects statuses");
+            System.out.println(" 'status <objectName>' - object status");
+            System.out.println(" 'start <all/objectName>' - start all or one specific object");
+            System.out.println(" 'stop <all/objectName>' - stop all or one specific object");
+            System.out.println(" 'extensions' - information about active extensions");
+            System.out.println();
+        });
+        commands.put("status", args -> {
             if (args.length == 0) {
                 System.out.println();
-                System.out.println("MCBootstrap information:");
+                System.out.println("Bootstrap status:");
                 System.out.println();
-                System.out.println(" Launched servers: " + Settings.getRunningServers().size());
-                System.out.println(" For more information about booting objects use 'info objects' command.");
+                System.out.println(" Loaded SERVER objects: " + BootingAPI.getBootingServers(false).count());
+                System.out.println(" Loaded GROUP objects: " + BootingAPI.getBootingGroups().count());
+                System.out.println(" Loaded PRIMARY_SERVER objects: " + BootingAPI.getPrimaryBootingServers().count());
+                System.out.println(" Loaded APPLICATION objects: " + BootingAPI.getBootingApplications().count());
                 System.out.println();
-                System.out.println(" Extensions loaded: " + ExtensionsManager.getExtensions().size());
-                System.out.println(" Main folder: " + Settings.getDataFolder().getAbsolutePath());
-                System.out.println(" Screens folder: " + Settings.getScreensFolder().getAbsolutePath());
+                System.out.println(" Total running servers: " + BootingAPI.getRunningServers(true).count());
+                System.out.println(" Total running applications: " + BootingAPI.getRunningApplications().count());
                 System.out.println();
-                System.out.println(" Uptime: " + BasicUtils.millisToPattern(ManagementFactory.getRuntimeMXBean().getUptime()));
-                System.out.println(" RAM usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576 + " MB");
-                if (ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage() > 0)
-                    System.out.println(" System average load: " + BasicUtils.round(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage(), 2));
+            } else if (args[0].equalsIgnoreCase("list")) {
                 System.out.println();
-            } else if (args[0].equalsIgnoreCase("objects")) {
+                System.out.println("Bootstrap objects status list:");
                 System.out.println();
-                System.out.println("Booting objects information");
-                System.out.println();
-                System.out.println(" Total count: " + Settings.getBootingObjects().size());
-                System.out.println(" For information about specific object use 'info <objectName>' command.");
-                System.out.println(" Inrormation about all servers: 'info servers', groups: 'info groups', primaries: 'info primaries'");
-                if (!Settings.getBootingObjects().isEmpty()) {
-                    System.out.println();
-                    System.out.println(" Loaded servers count: " + Settings.getBootingServers().size());
-                    System.out.println(" Loaded groups count: " + Settings.getBootingGroups().size());
-                    System.out.println(" Loaded primaries count: " + Settings.getPrimaryBootingServers().size());
-                    System.out.println();
-                    System.out.println(" List of objects in priority order:");
-                    System.out.println(" {" + BasicUtils.join(Settings.getBootingObjectsNames(), ", ") + "}");
-                }
-                System.out.println();
-            } else if (args[0].equalsIgnoreCase("servers")) {
-                System.out.println();
-                System.out.println("Booting servers information");
-                System.out.println();
-                System.out.println(" Launched servers: " + Settings.getRunningServers().size() + "/" + Settings.getBootingServers().size());
-                Settings.getBootingServers().forEach(server -> System.out.println(" - " + server.getName() +
-                        " (" + (server.isBooted() ? "BOOTED" : "NOT BOOTED") + (server.hasCustomPort() ? ", port: " + server.getCustomPort() : "") +")"));
-                System.out.println();
-            } else if (args[0].equalsIgnoreCase("groups")) {
-                System.out.println();
-                System.out.println("Booting groups information");
-                System.out.println();
-                System.out.println(" Total groups count: " + Settings.getBootingGroups().size());
-                Settings.getBootingGroups().forEach(group -> {
-                    System.out.println(" - Group name: '" + group.getName() + "', servers count: " + group.getServers().size());
-                    System.out.println(" Servers: " + BasicUtils.getServersString(group));
-                });
-                System.out.println();
-            } else if (args[0].equalsIgnoreCase("primaries")) {
-                System.out.println();
-                System.out.println("Primary booting servers information:");
-                System.out.println();
-                System.out.println(" Total primaries count: " + Settings.getPrimaryBootingServers().size());
-                Settings.getPrimaryBootingServers().forEach(primary -> {
-                    System.out.println(" - Primary name: '" + primary.getName() + "', servers count: " + primary.getClonedServers().size());
-                    System.out.println(" Servers: " + BasicUtils.getServersString(primary));
-                });
-                System.out.println();
-            } else if (args[0].equalsIgnoreCase("extensions")) {
-                System.out.println();
-                System.out.println("Extensions manager information:");
-                System.out.println();
-                if (ExtensionsManager.getExtensions().isEmpty()) System.out.println(" No loaded extensions foubd.");
-                ExtensionsManager.getExtensions().forEach(extension ->
-                        System.out.println(" - " + extension.getName() + " v. " + extension.getVersion() + " | Author " + extension.getAuthor()));
+                System.out.println(" Booting servers: " + (BootingAPI.getBootingServers(false).count() == 0 ? "NOT FOUND" : ""));
+                BootingAPI.getBootingServers(false).forEach(server -> System.out.println(" - " + Ansi.ansi().fg(server.isBooted() ? Ansi.Color.GREEN : Ansi.Color.WHITE).a(server.getName())));
+                System.out.println(" Booting groups: " + (BootingAPI.getBootingGroups().count() == 0 ? "NOT FOUND" : ""));
+                BootingAPI.getBootingGroups().forEach(group -> System.out.println(" - " + group.getName() + " " + BasicUtils.getServersString(group)));
+                System.out.println(" Primary booting servers: " + (BootingAPI.getPrimaryBootingServers().count() == 0 ? "NOT FOUND" : ""));
+                BootingAPI.getPrimaryBootingServers().forEach(primaryServer -> System.out.println(" - " + primaryServer.getName() + " " + BasicUtils.getServersString(primaryServer)));
+                System.out.println(" Booting applications: " + (BootingAPI.getBootingApplications().count() == 0 ? "NOT FOUND" : ""));
+                BootingAPI.getBootingApplications().forEach(application -> System.out.println(" - " + Ansi.ansi().fg(application.isBooted() ? Ansi.Color.GREEN : Ansi.Color.WHITE).a(application.getName())));
                 System.out.println();
             } else {
-                BootingObject object = Settings.getBootingObjectByName(args[0]);
+                BootingObject object = BootingAPI.getBootingObjectByName(args[0], true).orElse(null);
                 if (object != null) {
                     System.out.println();
-                    System.out.println("Object name: " + object.getName());
+                    System.out.println("Object '" + Ansi.ansi().bgBrightGreen().a(object.getName()).reset() + "' status:");
                     System.out.println();
-                    System.out.println(" Type: " + object.getClass().getSimpleName());
+                    System.out.println(" Object type: " + Ansi.ansi().bold().a(object.getClass().getSimpleName()));
                     System.out.println(" Priority: " + object.getPriority());
-                    System.out.println(" Directory: " + object.getDirectory().getAbsolutePath());
-                    System.out.println(" Auto restart: " + object.hasAutoRestartProperty());
-                    System.out.println(" Java command: " + object.getJavaCommand());
+                    System.out.println(" Directory: '" + object.getDirectory().getAbsolutePath() + "'");
+                    System.out.println(" Has auto restart: " + (object.hasAutoRestartProperty() ? "TRUE" : "FALSE"));
+                    System.out.println(" Start command: '" + object.getStartCommand() + "'");
+                    System.out.println(" Stop command: " + (object.hasStopCommand() ? "'" + object.getStopCommand() + "'" : "NOT DEFINED"));
                     System.out.println();
+                    if (object instanceof BootingApplication) {
+                        BootingApplication application = (BootingApplication) object;
+                        if (application.isBooted()) {
+                            System.out.println(" Status: " + Ansi.ansi().bgBrightGreen().a("BOOTED"));
+                            System.out.println(" Active screen: '" + application.getScreenID() + "." + application.getScreenName() + "'");
+                        } else {
+                            System.out.println(" Status: " + Ansi.ansi().bgBrightRed().a("OFF"));
+                            System.out.println(" Screen name on boot: '" + application.getScreenName() + "'");
+                        }
+                    }
                     if (object instanceof BootingServer) {
                         BootingServer server = (BootingServer) object;
-                        System.out.println(" Is booted: " + server.isBooted());
-                        if (server.hasCustomPort()) System.out.println(" Custom port: " + server.getCustomPort());
-                        System.out.println(" Screen name: " + (server.isBooted() ? server.getScreenID() + "." : "") + server.getScreenName());
-                        if (server.hasParent()) System.out.println(" Parent object: " + server.getParent());
+                        System.out.println(" Parent: " + (server.hasParent() ? "'" + server.getParentObject().getName() + "'" : "NOT DEFINED"));
+                        System.out.println(" Custom port: " + (server.hasCustomPort() ? server.getCustomPort() : "NOT DEFINED"));
                     } else if (object instanceof BootingGroup) {
                         BootingGroup group = (BootingGroup) object;
-                        if (group.hasFirstPort()) System.out.println(" First port: " + group.getFirstPort());
-                        System.out.println(" Servers: " + BasicUtils.getServersString(group));
+                        System.out.println(" First port: " + (group.hasFirstPort() ?group.getFirstPort() : "NOT DEFINED"));
+                        System.out.println(" Child servers: " + (!group.getChildServers().isEmpty() ? "NOT FOUND" : ""));
+                        group.getChildServers().forEach(server -> System.out.println(" - " + Ansi.ansi().fg(server.isBooted() ? Ansi.Color.GREEN : Ansi.Color.WHITE).a(server.getName())));
                     } else if (object instanceof PrimaryBootingServer) {
-                        PrimaryBootingServer primary = (PrimaryBootingServer) object;
-                        System.out.println(" First port: " + primary.getFirstPort());
-                        System.out.println(" Generation directory: " + primary.getGenerationDirectory().getAbsolutePath());
-                        System.out.println(" Servers: " + BasicUtils.getServersString(primary));
+                        PrimaryBootingServer primaryServer = (PrimaryBootingServer) object;
+                        System.out.println(" Generation directory: '" + primaryServer.getGenerationDirectory().getAbsolutePath() + "'");
+                        System.out.println(" Unique files policy: "
+                                + (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.INORDER_POLICY ? "INORDER" : (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.RANDOM_POLICY ? "RANDOM" : "CUSTOM")));
+                        System.out.println(" First port: " + primaryServer.getFirstPort());
+                        System.out.println(" Copies count: " + primaryServer.getCopiesCount());
+                        System.out.println(" Child cloned servers: " + (!primaryServer.getClonedServers().isEmpty() ? "NOT FOUND" : ""));
+                        primaryServer.getClonedServers().forEach(server -> System.out.println(" - " + Ansi.ansi().fg(server.isBooted() ? Ansi.Color.GREEN : Ansi.Color.WHITE).a(server.getName())));
                     }
                     System.out.println();
-                } else System.out.println("Object with name '" + args[0] + "' not found!");
+                }
+                else System.out.println("Object with name '" + args[0] + "' not found!");
             }
         });
         commands.put("start", args -> {
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("all")) MCBootstrap.startAllObjects();
+                if (args[0].equalsIgnoreCase("all")) BootingAPI.startAllObjects();
                 else {
-                    BootingObject object = Settings.getBootingObjectByName(args[0]);
+                    BootingObject object = BootingAPI.getBootingObjectByName(args[0], true).orElse(null);
                     if (object != null) {
-                        if (!object.isRunningServer()) object.bootObject();
-                        else System.out.println("That server is already booted!");
-                    } else System.out.println("Object with name '" + args[0] + "' not found!");
+                        if (object instanceof BootingServer) {
+                            BootingServer server = (BootingServer) object;
+                            if (!server.isBooted() && !server.isStarting()) object.bootObject();
+                            else System.out.println("That server is already booted or under loading!");
+                        } else if (object instanceof BootingApplication) {
+                            BootingApplication application = (BootingApplication) object;
+                            if (!application.isBooted() && !application.isStarting()) object.bootObject();
+                            else System.out.println("That application is already booted or under loading!");
+                        } else object.bootObject();
+                    }
+                    else System.out.println("Object with name '" + args[0] + "' not found!");
                 }
             } else System.out.println("Usage: 'start <all|objectName>'");
         });
+        commands.put("extensions", args -> {
+            System.out.println();
+            System.out.println("Extensions manager information:");
+            if (ExtensionsManager.getExtensions().isEmpty()) System.out.println("> No loaded extensions foubd.");
+            ExtensionsManager.getExtensions().forEach(extension -> System.out.println(" - " + extension.getName() + " v. " + extension.getVersion() + " | Author " + extension.getAuthor()));
+            System.out.println();
+        });
         commands.put("stop", args -> {
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("all")) MCBootstrap.startAllObjects();
+                if (args[0].equalsIgnoreCase("all")) BootingAPI.stopAllObjects();
                 else {
-                    BootingObject object = Settings.getBootingObjectByName(args[0]);
-                    if (object != null) object.stopObject();
+                    BootingObject object = BootingAPI.getBootingObjectByName(args[0], true).orElse(null);
+                    if (object != null) {
+                        if (object instanceof BootingServer) {
+                            BootingServer server = (BootingServer) object;
+                            if (server.isBooted()) object.stopObject();
+                            else System.out.println("That server isn't started!");
+                        } else if (object instanceof BootingApplication) {
+                            BootingApplication application = (BootingApplication) object;
+                            if (application.isBooted()) object.stopObject();
+                            else System.out.println("That application isn't started!");
+                        } else object.stopObject();
+                    }
                     else System.out.println("Object with name '" + args[0] + "' not found!");
                 }
             } else System.out.println("Usage: 'stop <all|objectName>'");

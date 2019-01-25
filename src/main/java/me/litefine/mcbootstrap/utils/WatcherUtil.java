@@ -1,16 +1,13 @@
 package me.litefine.mcbootstrap.utils;
 
 import me.litefine.mcbootstrap.extensions.ExtensionsManager;
+import me.litefine.mcbootstrap.main.BootingAPI;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
-import me.litefine.mcbootstrap.objects.booting.BootingServer;
 
 import java.io.File;
 import java.nio.file.*;
 
-/**
- * Created by LITEFINE IDEA on 05.12.17.
- */
 public class WatcherUtil {
 
     private static WatchService watchService;
@@ -35,21 +32,38 @@ public class WatcherUtil {
                         WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
                         String[] nameSplit = pathEvent.context().getFileName().toString().split("\\.");
                         int uniqueID = Integer.parseInt(nameSplit[0]);
-                        BootingServer server = Settings.getServerByScreenName(nameSplit[1]);
-                        if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                            if (server != null && !server.isBooted()) {
-                                server.setScreenID(uniqueID);
-                                ExtensionsManager.getExtensions().forEach(extension -> extension.onServerStartup(server));
-                                MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' created.");
+                        BootingAPI.getApplicationByScreenName(nameSplit[1]).ifPresent(application -> {
+                            if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                                if (!application.isBooted()) {
+                                    application.setScreenID(uniqueID);
+                                    ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onApplicationStartup(application)));
+                                    MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for application '" + application.getName() + "' created.");
+                                }
                             }
-                        }
-                        if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                            if (server != null && server.isBooted()) {
-                                server.setScreenID(-1);
-                                ExtensionsManager.getExtensions().forEach(extension -> extension.onServerShutdown(server));
-                                MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' deleted.");
+                            if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+                                if (application.isBooted()) {
+                                    application.setScreenID(-1);
+                                    ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onApplicationShutdown(application)));
+                                    MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for application '" + application.getName() + "' deleted.");
+                                }
                             }
-                        }
+                        });
+                        BootingAPI.getServerByScreenName(nameSplit[1], true).ifPresent(server -> {
+                            if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                                if (!server.isBooted()) {
+                                    server.setScreenID(uniqueID);
+                                    ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onServerStartup(server)));
+                                    MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' created.");
+                                }
+                            }
+                            if (pathEvent.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+                                if (server.isBooted()) {
+                                    server.setScreenID(-1);
+                                    ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onServerShutdown(server)));
+                                    MCBootstrap.getLogger().info("Screen '" + pathEvent.context().getFileName() + "' for server '" + server.getName() + "' deleted.");
+                                }
+                            }
+                        });
                     }
                     key.reset();
                 }
@@ -59,14 +73,21 @@ public class WatcherUtil {
         }, "Watcher Thread").start();
     }
 
-    public static void determineLaunchedObjects() {
+    public static void determineLaunchedApplications() {
+        final int[] counter = {0, 0};
         for (File screenFile : Settings.getScreensFolder().listFiles()) {
             String[] nameSplit = screenFile.getName().split("\\.");
-            BootingServer server = Settings.getServerByScreenName(nameSplit[1]);
-            if (server != null) server.setScreenID(Integer.parseInt(nameSplit[0]));
+            BootingAPI.getApplicationByScreenName(nameSplit[1]).ifPresent(application -> {
+                application.setScreenID(Integer.parseInt(nameSplit[0]));
+                counter[0]++;
+            });
+            BootingAPI.getServerByScreenName(nameSplit[1], true).ifPresent(server -> {
+                server.setScreenID(Integer.parseInt(nameSplit[0]));
+                counter[1]++;
+            });
         }
-        if (!Settings.getRunningServers().isEmpty())
-            MCBootstrap.getLogger().info(Settings.getRunningServers().size() + " already launched servers found.");
+        if (counter[0] > 0) MCBootstrap.getLogger().info(counter[0] + " already launched applications found.");
+        if (counter[1] > 0) MCBootstrap.getLogger().info(counter[1] + " already launched servers found.");
     }
 
 }

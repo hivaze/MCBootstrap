@@ -1,13 +1,12 @@
 package me.litefine.mcbootstrap.extensions;
 
+import me.litefine.mcbootstrap.objects.booting.BootingApplication;
+import me.litefine.mcbootstrap.objects.booting.BootingObject;
 import me.litefine.mcbootstrap.objects.booting.BootingServer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Created by LITEFINE IDEA on 29.12.2017.
- */
 public class Extension {
 
     protected final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -21,9 +20,15 @@ public class Extension {
 
     public void onSystemFinalizeShutdown() {}
 
-    public void onServerStartup(BootingServer object) {}
+    public void onBootingObjectAfterLoad(BootingObject object) {}
 
-    public void onServerShutdown(BootingServer object) {}
+    public void onServerStartup(BootingServer server) {}
+
+    public void onServerShutdown(BootingServer server) {}
+
+    public void onApplicationStartup(BootingApplication application) {}
+
+    public void onApplicationShutdown(BootingApplication application) {}
 
     public String getName() {
         return name;
@@ -37,7 +42,7 @@ public class Extension {
         return version;
     }
 
-    public ExecutorService getExecutorService() {
+    public ExecutorService executor() {
         return executorService;
     }
 

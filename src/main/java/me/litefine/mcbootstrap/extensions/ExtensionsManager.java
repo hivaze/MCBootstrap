@@ -14,9 +14,6 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-/**
- * Created by LITEFINE IDEA on 29.12.2017.
- */
 public class ExtensionsManager {
 
     private static final List<Extension> extensions = new ArrayList<>();
@@ -48,7 +45,8 @@ public class ExtensionsManager {
     }
 
     public static void disableExtensions() {
-        extensions.forEach(extension -> extension.getExecutorService().shutdown());
+        extensions.forEach(extension -> extension.executor().shutdown());
+        extensions.clear();
     }
 
     public static List<Extension> getExtensions() {

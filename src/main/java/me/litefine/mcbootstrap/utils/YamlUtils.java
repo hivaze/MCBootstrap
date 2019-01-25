@@ -10,9 +10,6 @@ import java.io.FileReader;
 import java.lang.ref.SoftReference;
 import java.util.Map;
 
-/**
- * Created by LITEFINE IDEA on 02.12.17.
- */
 public class YamlUtils {
 
     private static final YamlConfig yamlConfig = new YamlConfig();

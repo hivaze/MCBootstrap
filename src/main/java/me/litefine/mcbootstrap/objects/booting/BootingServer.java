@@ -1,5 +1,6 @@
 package me.litefine.mcbootstrap.objects.booting;
 
+import me.litefine.mcbootstrap.extensions.ExtensionsManager;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.utils.BasicUtils;
 
@@ -7,81 +8,76 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Created by LITEFINE IDEA on 03.12.17.
- */
-public class BootingServer extends BootingObject {
+public class BootingServer extends BootingApplication {
 
-    private final BootingObject parent;
-    private final String screenName;
-    private int screenID = -1, customPort = -1;
-    private boolean temporaryBootingFlag = false;
+    private final BootingObject parentObject;
+    private int customPort = -1;
 
     BootingServer(String name, Map<String, String> properties) {
-        super(name, properties);
+        super(name, properties, false);
         if (properties.containsKey("port")) customPort = Integer.parseInt(properties.get("port"));
-        this.screenName = BasicUtils.getScreenNameFor(this);
-        this.parent = null;
+        this.parentObject = null;
+        ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onBootingObjectAfterLoad(this)));
     }
 
     BootingServer(BootingGroup bootingGroup, String name, File directory) {
-        super(directory, name, bootingGroup.javaCommand, bootingGroup.priority);
-        this.parent = bootingGroup;
-        this.screenName = BasicUtils.getScreenNameFor(this);
+        super(directory, name, bootingGroup.startCommand, bootingGroup.priority);
+        this.parentObject = bootingGroup;
         this.autoRestart = bootingGroup.autoRestart;
-        if (bootingGroup.hasFirstPort()) this.customPort = bootingGroup.getFirstPort() + bootingGroup.getServers().indexOf(this);
+        if (bootingGroup.hasFirstPort()) this.customPort = bootingGroup.getFirstPort() + bootingGroup.getChildServers().size();
     }
 
     BootingServer(PrimaryBootingServer primaryServer, String name, File directory) {
-        super(directory, name, primaryServer.javaCommand, primaryServer.priority);
-        this.parent = primaryServer;
-        this.screenName = BasicUtils.getScreenNameFor(this);
+        super(directory, name, primaryServer.startCommand, primaryServer.priority);
+        this.parentObject = primaryServer;
         this.autoRestart = primaryServer.autoRestart;
         this.customPort = primaryServer.getFirstPort() + primaryServer.getClonedServers().indexOf(this);
     }
 
     @Override
-    public void bootObject() {
+    public synchronized void bootObject() {
         try {
+            temporaryBootingFlag = true;
             MCBootstrap.getLogger().info("Launch server '" + name + "', screen: " + screenName);
-            if (parent instanceof PrimaryBootingServer) {
-                PrimaryBootingServer pServer = (PrimaryBootingServer) parent;
+            if (parentObject instanceof PrimaryBootingServer) {
+                PrimaryBootingServer pServer = (PrimaryBootingServer) parentObject;
                 if (directory.exists()) BasicUtils.deleteDirectory(directory, true);
                 else directory.mkdirs();
                 directory.deleteOnExit();
                 pServer.clonePrimaryDirectory(this);
             }
-            new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", javaCommand + (customPort != -1 ? " -p " + customPort : ""))
+            new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", "\"" + startCommand + (customPort != -1 ? " -p " + customPort : "\""))
                     .directory(directory).inheritIO().start();
         } catch (IOException e) {
-            MCBootstrap.getLogger().error("An error occured while booting server '" + name + "' - " + e.getMessage());
+            MCBootstrap.getLogger().error("An error occurred while booting server '" + name + "' - " + e.getMessage());
+            temporaryBootingFlag = false;
         }
     }
 
     @Override
-    public void stopObject() {
+    public synchronized void stopObject() {
+        if (temporaryBootingFlag) return;
         try {
-            MCBootstrap.getLogger().info("Stopping server '" + name + "', screen: " + screenName);
-            new ProcessBuilder("screen", "-p", "0", "-S", screenID + "." + screenName, "-X", "eval", "stuff \"stop\"\\015").inheritIO().start();
-            temporaryBootingFlag = true;
+            MCBootstrap.getLogger().info("Stopping server '" + name + "', screen: " + screenID + "." + screenName);
+            if (hasStopCommand()) new ProcessBuilder("screen", "-p", "0", "-S", screenID + "." + screenName, "-X", "eval", "stuff", "\"" + stopCommand +"\"\\015").inheritIO().start();
+            else new ProcessBuilder("screen", "-X", "-S", screenID + "." + screenName, "quit").inheritIO().start();
         } catch (IOException e) {
-            MCBootstrap.getLogger().error("Can't stop screen for '" + name + "' - " + e.getMessage());
+            MCBootstrap.getLogger().error("Can't stop screen for server '" + name + "' - " + e.getMessage());
         }
     }
 
-    public void setScreenID(int screenID) {
-        this.screenID = screenID;
+    @Override
+    public synchronized void setScreenID(int screenID) {
         if (screenID == -1) {
-            if (parent instanceof PrimaryBootingServer) {
+            if (parentObject instanceof PrimaryBootingServer) {
                 try {
                     BasicUtils.deleteDirectory(directory, false);
                 } catch (IOException e) {
                     MCBootstrap.getLogger().error("Can't delete '" + name + "' directory (" + directory.getAbsolutePath() + ")", e.getMessage());
                 }
             }
-            if (autoRestart && !temporaryBootingFlag) this.bootObject();
-            temporaryBootingFlag = false;
         }
+        super.setScreenID(screenID);
     }
 
     public boolean hasCustomPort() {
@@ -92,24 +88,12 @@ public class BootingServer extends BootingObject {
         return customPort;
     }
 
-    public String getScreenName() {
-        return screenName;
-    }
-
-    public boolean isBooted() {
-        return screenID != -1;
-    }
-
-    public int getScreenID() {
-        return screenID;
-    }
-
     public boolean hasParent() {
-        return parent != null;
+        return parentObject != null;
     }
 
-    public BootingObject getParent() {
-        return parent;
+    public BootingObject getParentObject() {
+        return parentObject;
     }
 
 }
