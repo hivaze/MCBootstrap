@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class BootingAPI {
@@ -28,16 +28,21 @@ public class BootingAPI {
                 count[0]++;
             }
         });
-        MCBootstrap.getLogger().info(count[0] + " objects started");
+        MCBootstrap.getLogger().info(count[0] + " objects from config started");
     }
 
     public static void stopAllObjects() {
         MCBootstrap.getLogger().info("Stopping all booting objects (" + bootingObjects.size() + ")...");
-        if (Settings.reverseOrderOnStop()) {
-            bootingObjects.stream()
-                    .sorted(Comparator.comparingInt(object -> object.getPriority().getPoints()))
-                    .collect(Collectors.toList()).forEach(BootingObject::stopObject);
-        } else bootingObjects.forEach(BootingObject::stopObject);
+        Consumer<BootingObject> stopper = object -> {
+            synchronized (object) {
+                object.stopObject();
+                if (object instanceof BootingApplication && ((BootingApplication) object).isBooted())
+                    try { object.wait(); } catch (InterruptedException ignore) {}
+            }
+        };
+        if (Settings.reverseOrderOnStop())
+            bootingObjects.stream().sorted(Comparator.comparingInt(object -> object.getPriority().getPoints())).forEach(stopper);
+        else bootingObjects.forEach(stopper);
     }
 
     public static synchronized List<BootingObject> getBootingObjects() {

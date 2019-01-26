@@ -1,6 +1,7 @@
 package me.litefine.mcbootstrap.objects.booting;
 
 import me.litefine.mcbootstrap.extensions.ExtensionsManager;
+import me.litefine.mcbootstrap.main.BootingAPI;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.utils.BasicUtils;
 import org.fusesource.jansi.Ansi;
@@ -19,11 +20,14 @@ public class BootingApplication extends BootingObject {
     BootingApplication(String name, Map<String, String> properties, boolean justApp) {
         super(name, properties);
         this.screenName = BasicUtils.getScreenNameFor(this);
-        if (justApp) ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onBootingObjectAfterLoad(this)));
+        if (justApp) {
+            BootingAPI.getBootingObjects().add(this);
+            ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onBootingObjectAfterLoad(this)));
+        }
     }
 
-    BootingApplication(File directory, String name, String startCommand, Priority priority) {
-        super(directory, name, startCommand, priority);
+    BootingApplication(boolean doDirCheck, File directory, String name, String startCommand, Priority priority) {
+        super(doDirCheck, directory, name, startCommand, priority);
         this.screenName = BasicUtils.getScreenNameFor(this);
     }
 
@@ -34,7 +38,7 @@ public class BootingApplication extends BootingObject {
             MCBootstrap.getLogger().info("Launch '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', screen name: '" + screenName + "'...");
             new ProcessBuilder("screen", "-dmS", screenName, "bash", "-c", bootCommand).directory(directory).inheritIO().start();
         } catch (IOException e) {
-            MCBootstrap.getLogger().error("An error occurred while booting '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "' - " + e.getMessage());
+            MCBootstrap.getLogger().error("An error occurred while booting '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "'", e);
             temporaryBootingFlag = false;
         }
     }
@@ -48,13 +52,14 @@ public class BootingApplication extends BootingObject {
             if (hasStopCommand()) new ProcessBuilder("screen", "-p", "0", "-S", screenID + "." + screenName, "-X", "eval", "stuff " + stopCommand + "\\015").inheritIO().start();
             else new ProcessBuilder("screen", "-X", "-S", screenID + "." + screenName, "quit").inheritIO().start();
         } catch (IOException e) {
-            MCBootstrap.getLogger().error("Can't stop screen for '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "' - " + e.getMessage());
+            MCBootstrap.getLogger().error("Can't stop screen for '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "'", e);
         }
     }
 
     public synchronized void setScreenID(int screenID) {
         this.screenID = screenID;
         this.temporaryBootingFlag = false;
+        this.notifyAll();
         if (screenID == -1 && autoRestart && !blockAutoRestart) this.bootObject();
         else if (screenID == -1 && autoRestart) blockAutoRestart = false;
     }

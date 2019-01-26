@@ -26,17 +26,15 @@ public abstract class BootingObject {
         if (properties.containsKey("stopCommand")) stopCommand = properties.get("stopCommand");
         if (properties.containsKey("autoRestart")) autoRestart = Boolean.valueOf(properties.get("autoRestart"));
         if (properties.containsKey("priority")) this.priority = Priority.valueOf(properties.get("priority").toUpperCase());
-        if (directoryValidator.test(directory)) BootingAPI.getBootingObjects().add(this);
-        else throw new InvalidParameterException("Invalid directory '" + directory + "'");
+        if (!directoryValidator.test(directory)) throw new InvalidParameterException("Invalid directory '" + directory + "'");
     }
 
-    BootingObject(File directory, String name, String processCommand, Priority priority) {
-        if (directoryValidator.test(directory)) {
-            this.directory = directory;
-            this.name = name;
-            this.bootCommand = processCommand;
-            this.priority = priority;
-        } else throw new InvalidParameterException("Invalid directory!");
+    BootingObject(boolean doDirCheck, File directory, String name, String processCommand, Priority priority) {
+        if (doDirCheck && !directoryValidator.test(directory)) throw new InvalidParameterException("Invalid directory!");
+        this.directory = directory;
+        this.name = name;
+        this.bootCommand = processCommand;
+        this.priority = priority;
     }
 
     public abstract void bootObject();

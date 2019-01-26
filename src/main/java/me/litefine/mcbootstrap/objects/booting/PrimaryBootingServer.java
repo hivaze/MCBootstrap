@@ -1,6 +1,7 @@
 package me.litefine.mcbootstrap.objects.booting;
 
 import me.litefine.mcbootstrap.extensions.ExtensionsManager;
+import me.litefine.mcbootstrap.main.BootingAPI;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
 import me.litefine.mcbootstrap.objects.UniqueFilesPolicy;
@@ -21,29 +22,34 @@ public class PrimaryBootingServer extends BootingObject {
 
     private final List<BootingServer> clonedChildServers = new ArrayList<>();
 
-    private final UniqueFilesPolicy uniqueFilesPolicy;
+    private UniqueFilesPolicy uniqueFilesPolicy;
     private final File generationDirectory, uniqueFilesFolder = new File(directory.getAbsolutePath() + "/_unique_/");
-    private final int copiesCount, firstPort;
+    private final int clonesCount, firstPort;
 
     PrimaryBootingServer(String name, Map<String, String> properties) {
         super(name, properties);
-        copiesCount = Integer.parseInt(properties.get("copiesCount"));
+        clonesCount = Integer.parseInt(properties.get("clonesCount"));
         firstPort = Integer.parseInt(properties.get("firstPort"));
         generationDirectory = new File(properties.get("generationDirectory"));
         uniqueFilesPolicy = UniqueFilesPolicy.getUniqueFilesPolicy(properties.get("uniqueFilesPolicy"));
-        for (int number = 1; number <= copiesCount; number++) {
+        for (int number = 1; number <= clonesCount; number++) {
             File destinationDir = new File(generationDirectory.getAbsolutePath() + "/" + name + "-" + number);
-            clonedChildServers.add(new BootingServer(this, destinationDir.getName(), destinationDir));
+            try {
+                clonedChildServers.add(new BootingServer(this, destinationDir.getName(), destinationDir));
+            } catch (Exception ex) {
+                MCBootstrap.getLogger().warn("Can't create '" + BasicUtils.colorize(destinationDir.getName(), Ansi.Color.YELLOW)  + "' server for primary server '" + BasicUtils.colorize(name, Ansi.Color.YELLOW)  + "' - " + ex);
+            }
         }
+        BootingAPI.getBootingObjects().add(this);
         ExtensionsManager.getExtensions().forEach(extension -> extension.executor().submit(() -> extension.onBootingObjectAfterLoad(this)));
     }
 
     @Override
     public synchronized void bootObject() {
-        MCBootstrap.getLogger().info("Launch primary server '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', copies: " + copiesCount);
+        MCBootstrap.getLogger().info("Launch primary server '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', clones count: " + clonesCount);
         if (generationDirectory.mkdirs()) MCBootstrap.getLogger().debug("Servers generation folder created " + generationDirectory.getAbsolutePath());
         clonedChildServers.forEach(bootingServer -> {
-            if (!bootingServer.isBooted()) {
+            if (!bootingServer.isBooted() && !bootingServer.isStarting()) {
                 long startTime = System.currentTimeMillis();
                 bootingServer.bootObject();
                 long pause = Settings.getStartDelay() * 1000L - (System.currentTimeMillis() - startTime);
@@ -59,10 +65,14 @@ public class PrimaryBootingServer extends BootingObject {
 
     @Override
     public synchronized void stopObject() {
-        MCBootstrap.getLogger().info("Stopping primary server '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', copies: " + copiesCount);
+        MCBootstrap.getLogger().info("Stopping clones of primary server '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', copies: " + clonesCount);
         clonedChildServers.forEach(bootingServer -> {
-            if (bootingServer.isBooted())
-                bootingServer.stopObject();
+            synchronized (bootingServer) {
+                if (bootingServer.isBooted()) {
+                    bootingServer.stopObject();
+                    try { bootingServer.wait(); } catch (InterruptedException ignore) {}
+                }
+            }
         });
     }
 
@@ -74,12 +84,16 @@ public class PrimaryBootingServer extends BootingObject {
         return uniqueFilesFolder;
     }
 
+    public void setUniqueFilesPolicy(UniqueFilesPolicy uniqueFilesPolicy) {
+        this.uniqueFilesPolicy = uniqueFilesPolicy;
+    }
+
     public UniqueFilesPolicy getUniqueFilesPolicy() {
         return uniqueFilesPolicy;
     }
 
-    public int getCopiesCount() {
-        return copiesCount;
+    public int getClonesCount() {
+        return clonesCount;
     }
 
     public int getFirstPort() {
@@ -91,11 +105,9 @@ public class PrimaryBootingServer extends BootingObject {
     }
 
     void clonePrimaryDirectory(BootingServer forObject) throws IOException {
-        MCBootstrap.getLogger().info("Generation of clone clone of '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "' primary for server '" + BasicUtils.colorize(forObject.name, Ansi.Color.YELLOW) + "' in " + forObject.directory.getAbsolutePath());
+        MCBootstrap.getLogger().info("Generation clone of '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "' primary for server '" + BasicUtils.colorize(forObject.name, Ansi.Color.YELLOW) + "' in " + forObject.directory.getAbsolutePath());
         long time = System.currentTimeMillis();
-        File uniqueFilesFrom = uniqueFilesPolicy.getUniqueFolder(this, forObject);
-        Function<Path, Path> relationMaker = path ->
-                Paths.get(forObject.directory.getAbsolutePath() + "/" + directory.toPath().getParent().relativize(path));
+        Function<Path, Path> relationMaker = path -> Paths.get(forObject.directory.getAbsolutePath() + "/" + directory.toPath().relativize(path));
         Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>() {
 
             @Override
@@ -114,8 +126,9 @@ public class PrimaryBootingServer extends BootingObject {
             }
 
         });
-        if (uniqueFilesFrom != null) {
-            if (uniqueFilesFrom.exists()) {
+        if (uniqueFilesPolicy != null) {
+            if (uniqueFilesFolder.exists() && uniqueFilesFolder.listFiles() != null) {
+                File uniqueFilesFrom = uniqueFilesPolicy.getUniqueFolder(this, forObject);
                 Files.walkFileTree(uniqueFilesFrom.toPath(), new SimpleFileVisitor<Path>() {
 
                     @Override
@@ -131,7 +144,7 @@ public class PrimaryBootingServer extends BootingObject {
                     }
 
                 });
-            } else MCBootstrap.getLogger().debug("Unique files directory " + uniqueFilesFrom.getAbsolutePath() + " does not exist!");
+            } else MCBootstrap.getLogger().debug("Unique files directory " + uniqueFilesFolder.getAbsolutePath() + " does not exist!");
         }
         MCBootstrap.getLogger().info("The clone '" + BasicUtils.colorize(forObject.name, Ansi.Color.YELLOW) + "' generated in " + (System.currentTimeMillis() - time) + " ms!");
     }

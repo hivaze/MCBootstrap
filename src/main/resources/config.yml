@@ -3,10 +3,10 @@
 
 Settings:
   bootAllObjectsOnStart: false
-  enableDebug: true
-  screenNamePattern: 'MCB-%name%'
-  eachServerStartDelay: 5
-  reverseStartOrderOnStop: false
+  enableDebug: false # More information about runtime and objects
+  screenNamePattern: 'MCB-%name%' # Allowed variables: %name% and %priority%
+  eachServerStartDelay: 5 # Delay in seconds between objects starts (use 0 to disable(
+  reverseStartOrderOnStop: false # Inverse priority of all objects
 
 # Objects example configuration
 Booting Objects:
@@ -27,13 +27,14 @@ Booting Objects:
   serversGroup1:
     type: GROUP
     priority: NORMAL
+    commonHost: localhost # All servers in group will have this host
     bootCommand: 'java -jar Server.jar'
     stopCommand: 'stop'
     directory: '/example/servers/serversGroup1/'
   serversGroup2:
     type: GROUP
     priority: HIGHEST
-    firstPort: 25600
+    firstPort: 25600 # First server starts on this port, second this + 1, third this + 2, etc
     autoRestart: true
     bootCommand: 'java -jar Server.jar'
     stopCommand: 'stop'
@@ -44,7 +45,7 @@ Booting Objects:
     uniqueFilesPolicy: RANDOM # Can be 'INORDER', 'RANDOM' or 'CUSTOM' (extension). More information on wiki
     bootCommand: 'java -jar MinigameServer.jar'
     stopCommand: 'stop'
-    copiesCount: 5 # Number of cloned servers to generate
+    clonesCount: 5 # Number of cloned servers to generate
     firstPort: 30000
     autoRestart: false
     directory: '/example/servers/myminigame/primaryServerDirecory/' # Original server dirictory

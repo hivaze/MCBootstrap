@@ -64,7 +64,7 @@ public class CommandsManager {
             System.out.println(" 'stop <all/objectName>' - stop all or one specific object");
             System.out.println(" 'extensions' - information about active extensions");
             System.out.println(" 'shutdown' - full and safe shutdown with all objects stopping");
-            System.out.println(" 'systemexit' - quick and NOT SAFE shutdown");
+            System.out.println(" 'systemexit' - quick and safe shutdown ");
             System.out.println();
         });
         commands.put("status", args -> {
@@ -121,9 +121,11 @@ public class CommandsManager {
                     if (object instanceof BootingServer) {
                         BootingServer server = (BootingServer) object;
                         System.out.println(" Parent: " + (server.hasParent() ? "'" + BasicUtils.colorize(server.getParentObject().getName(), Ansi.Color.YELLOW) + "'" : "NOT DEFINED"));
+                        System.out.println(" Custom host: " + (server.hasCustomHost() ? server.getCustomHost() : "NOT DEFINED"));
                         System.out.println(" Custom port: " + (server.hasCustomPort() ? server.getCustomPort() : "NOT DEFINED"));
                     } else if (object instanceof BootingGroup) {
                         BootingGroup group = (BootingGroup) object;
+                        System.out.println(" Common host: " + (group.hasCommonHost() ? group.getCommonHost() : "NOT DEFINED"));
                         System.out.println(" First port: " + (group.hasFirstPort() ?group.getFirstPort() : "NOT DEFINED"));
                         System.out.println(" Child servers: " + (group.getChildServers().isEmpty() ? "NOT FOUND" : ""));
                         group.getChildServers().forEach(server ->
@@ -134,7 +136,7 @@ public class CommandsManager {
                         System.out.println(" Unique files policy: " +
                                 (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.INORDER_POLICY ? "INORDER" : (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.RANDOM_POLICY ? "RANDOM" : "CUSTOM")));
                         System.out.println(" First port: " + primaryServer.getFirstPort());
-                        System.out.println(" Copies count: " + primaryServer.getCopiesCount());
+                        System.out.println(" Clones count: " + primaryServer.getClonesCount());
                         System.out.println(" Child cloned servers: " + (primaryServer.getClonedServers().isEmpty() ? "NOT FOUND" : ""));
                         primaryServer.getClonedServers().forEach(server ->
                                 System.out.printf(" - %s%s%n", server.isBooted() ? BasicUtils.colorize(server.getName(), Ansi.Color.GREEN) : BasicUtils.colorize(server.getName(), Ansi.Color.DEFAULT), server.isBooted() ? " | active screen: '" + server.getScreenID() + "." + server.getScreenName() + "'" : ""));
@@ -164,13 +166,6 @@ public class CommandsManager {
                 }
             } else System.out.println("Usage: 'start <all|objectName>'");
         });
-        commands.put("extensions", args -> {
-            System.out.println();
-            System.out.println(BasicUtils.bolding("Extensions manager information:"));
-            if (ExtensionsManager.getExtensions().isEmpty()) System.out.println("> No loaded extensions foubd.");
-            ExtensionsManager.getExtensions().forEach(extension -> System.out.println(" - " + BasicUtils.colorize(extension.getName(), Ansi.Color.GREEN) + " v. " + extension.getVersion() + " | Author " + extension.getAuthor()));
-            System.out.println();
-        });
         commands.put("stop", args -> {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase("all")) BootingAPI.stopAllObjects();
@@ -190,6 +185,13 @@ public class CommandsManager {
                     else System.out.println("Object with name '" + args[0] + "' not found!");
                 }
             } else System.out.println("Usage: 'stop <all|objectName>'");
+        });
+        commands.put("extensions", args -> {
+            System.out.println();
+            System.out.println(BasicUtils.bolding("Extensions manager information:"));
+            if (ExtensionsManager.getExtensions().isEmpty()) System.out.println("> No loaded extensions foubd.");
+            ExtensionsManager.getExtensions().forEach(extension -> System.out.println(" - " + BasicUtils.colorize(extension.getName(), Ansi.Color.GREEN) + " v. " + extension.getVersion() + " | Author " + extension.getAuthor()));
+            System.out.println();
         });
         commands.put("shutdown", args -> MCBootstrap.shutdown(true));
         commands.put("systemexit", args -> MCBootstrap.shutdown(false));
