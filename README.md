@@ -12,4 +12,4 @@ This is very simple and powerful standalone tool for **minecraft** servers **adm
 * **Extensions system**. If you are a developer, you can supplement this system for yourself.
 
 ## Last version screenshot
-![Logo](https://i.ibb.co/t3T9ctS/2019-01-27-3-34-30.png "Screenshot of work")
+![Logo](https://i.ibb.co/k9th1jD/2019-01-27-3-28-00.png "Screenshot of work")
