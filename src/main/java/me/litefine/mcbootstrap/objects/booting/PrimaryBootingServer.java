@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class PrimaryBootingServer extends BootingObject {
+public class PrimaryBootingServer extends BootingObject implements ParenthoodObject {
 
     private final List<BootingServer> clonedChildServers = new ArrayList<>();
 
@@ -66,14 +66,7 @@ public class PrimaryBootingServer extends BootingObject {
     @Override
     public synchronized void stopObject() {
         MCBootstrap.getLogger().info("Stopping clones of primary server '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', copies: " + clonesCount);
-        clonedChildServers.forEach(bootingServer -> {
-            synchronized (bootingServer) {
-                if (bootingServer.isBooted()) {
-                    bootingServer.stopObject();
-                    try { bootingServer.wait(); } catch (InterruptedException ignore) {}
-                }
-            }
-        });
+        clonedChildServers.forEach(childStopper);
     }
 
     public File getGenerationDirectory() {
@@ -84,11 +77,11 @@ public class PrimaryBootingServer extends BootingObject {
         return uniqueFilesFolder;
     }
 
-    public void setUniqueFilesPolicy(UniqueFilesPolicy uniqueFilesPolicy) {
+    public synchronized void setUniqueFilesPolicy(UniqueFilesPolicy uniqueFilesPolicy) {
         this.uniqueFilesPolicy = uniqueFilesPolicy;
     }
 
-    public UniqueFilesPolicy getUniqueFilesPolicy() {
+    public synchronized UniqueFilesPolicy getUniqueFilesPolicy() {
         return uniqueFilesPolicy;
     }
 
@@ -100,28 +93,29 @@ public class PrimaryBootingServer extends BootingObject {
         return firstPort;
     }
 
-    public List<BootingServer> getClonedServers() {
+    @Override
+    public List<BootingServer> getChildServers() {
         return Collections.unmodifiableList(clonedChildServers);
     }
 
     void clonePrimaryDirectory(BootingServer forObject) throws IOException {
         MCBootstrap.getLogger().info("Generation clone of '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "' primary for server '" + BasicUtils.colorize(forObject.name, Ansi.Color.YELLOW) + "' in " + forObject.directory.getAbsolutePath());
         long time = System.currentTimeMillis();
-        Function<Path, Path> relationMaker = path -> Paths.get(forObject.directory.getAbsolutePath() + "/" + directory.toPath().relativize(path));
+        Function<Path, Path> basicRelationMaker = path -> Paths.get(forObject.directory.getAbsolutePath() + "/" + directory.toPath().relativize(path));
         Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>() {
 
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 if (dir.equals(uniqueFilesFolder.toPath())) return FileVisitResult.SKIP_SUBTREE;
                 else {
-                    Files.copy(dir, relationMaker.apply(dir));
+                    Files.copy(dir, basicRelationMaker.apply(dir));
                     return FileVisitResult.CONTINUE;
                 }
             }
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.copy(file, relationMaker.apply(file));
+                Files.copy(file, basicRelationMaker.apply(file));
                 return FileVisitResult.CONTINUE;
             }
 
@@ -129,17 +123,19 @@ public class PrimaryBootingServer extends BootingObject {
         if (uniqueFilesPolicy != null) {
             if (uniqueFilesFolder.exists() && uniqueFilesFolder.listFiles() != null) {
                 File uniqueFilesFrom = uniqueFilesPolicy.getUniqueFolder(this, forObject);
+                Function<Path, Path> uniqueRelationMaker = path -> Paths.get(forObject.directory.getAbsolutePath() + "/" + uniqueFilesFrom.toPath().relativize(path));
+                MCBootstrap.getLogger().info("Using unique files from " + uniqueFilesFrom.getAbsolutePath() + " for '" + BasicUtils.colorize(forObject.name, Ansi.Color.YELLOW) + "' clone");
                 Files.walkFileTree(uniqueFilesFrom.toPath(), new SimpleFileVisitor<Path>() {
 
                     @Override
                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                        Files.copy(dir, relationMaker.apply(dir));
+                        if (dir != uniqueFilesFrom.toPath()) Files.copy(dir, uniqueRelationMaker.apply(dir));
                         return FileVisitResult.CONTINUE;
                     }
 
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.copy(file, relationMaker.apply(file));
+                        Files.copy(file, uniqueRelationMaker.apply(file));
                         return FileVisitResult.CONTINUE;
                     }
 

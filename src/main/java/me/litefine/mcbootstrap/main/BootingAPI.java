@@ -53,7 +53,7 @@ public class BootingAPI {
         Stream<BootingObject> stream = bootingObjects.stream();
         if (includeChildes) {
             stream = Stream.concat(stream, getBootingGroups().map(BootingGroup::getChildServers).flatMap(List::stream).map(BootingObject.class::cast));
-            stream = Stream.concat(stream, getPrimaryBootingServers().map(PrimaryBootingServer::getClonedServers).flatMap(List::stream).map(BootingObject.class::cast));
+            stream = Stream.concat(stream, getPrimaryBootingServers().map(PrimaryBootingServer::getChildServers).flatMap(List::stream).map(BootingObject.class::cast));
         }
         return stream.filter(bootingObject -> bootingObject.getName().equals(name)).findFirst();
     }
@@ -62,7 +62,7 @@ public class BootingAPI {
         Stream<BootingServer> serverStream = bootingObjects.stream().filter(BootingServer.class::isInstance).map(BootingServer.class::cast);
         if (includeChildes) {
             serverStream = Stream.concat(serverStream, getBootingGroups().map(BootingGroup::getChildServers).flatMap(List::stream).map(BootingServer.class::cast));
-            serverStream = Stream.concat(serverStream, getPrimaryBootingServers().map(PrimaryBootingServer::getClonedServers).flatMap(List::stream).map(BootingServer.class::cast));
+            serverStream = Stream.concat(serverStream, getPrimaryBootingServers().map(PrimaryBootingServer::getChildServers).flatMap(List::stream).map(BootingServer.class::cast));
         }
         return serverStream;
     }

@@ -46,7 +46,7 @@ public class BootingServer extends BootingApplication {
         super(false, directory, name, primaryServer.bootCommand, primaryServer.priority);
         this.parentObject = primaryServer;
         this.autoRestart = primaryServer.autoRestart;
-        this.customPort = primaryServer.getFirstPort() + primaryServer.getClonedServers().size();
+        this.customPort = primaryServer.getFirstPort() + primaryServer.getChildServers().size();
         afterLoad(false);
     }
 

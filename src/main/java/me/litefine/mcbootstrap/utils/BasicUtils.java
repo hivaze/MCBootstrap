@@ -3,8 +3,7 @@ package me.litefine.mcbootstrap.utils;
 import me.litefine.mcbootstrap.main.MCBootstrap;
 import me.litefine.mcbootstrap.main.Settings;
 import me.litefine.mcbootstrap.objects.booting.BootingApplication;
-import me.litefine.mcbootstrap.objects.booting.BootingGroup;
-import me.litefine.mcbootstrap.objects.booting.PrimaryBootingServer;
+import me.litefine.mcbootstrap.objects.booting.ParenthoodObject;
 import org.fusesource.jansi.Ansi;
 
 import java.io.File;
@@ -48,22 +47,10 @@ public class BasicUtils {
         return Ansi.ansi().bold().a(string).reset();
     }
 
-    public static String getServersString(BootingGroup group) {
+    public static String getServersString(ParenthoodObject group) {
         if (!group.getChildServers().isEmpty()) {
             StringBuilder builder = new StringBuilder("(");
             group.getChildServers().forEach(bootingServer -> {
-                if (bootingServer.isBooted()) builder.append(colorize(bootingServer.getName(), Ansi.Color.GREEN));
-                else builder.append(bootingServer.getName());
-                builder.append(", ");
-            });
-            return builder.toString().substring(0, builder.length() - 2).concat(")");
-        } else return "[]";
-    }
-
-    public static String getServersString(PrimaryBootingServer primary) {
-        if (!primary.getClonedServers().isEmpty()) {
-            StringBuilder builder = new StringBuilder("(");
-            primary.getClonedServers().forEach(bootingServer -> {
                 if (bootingServer.isBooted()) builder.append(colorize(bootingServer.getName(), Ansi.Color.GREEN));
                 else builder.append(bootingServer.getName());
                 builder.append(", ");

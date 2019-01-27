@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class BootingGroup extends BootingObject {
+public class BootingGroup extends BootingObject implements ParenthoodObject {
 
     private final List<BootingServer> childServers = new ArrayList<>();
 
@@ -55,16 +55,10 @@ public class BootingGroup extends BootingObject {
     @Override
     public synchronized void stopObject() {
         MCBootstrap.getLogger().info("Stopping group of servers '" + BasicUtils.colorize(name, Ansi.Color.YELLOW) + "', servers: " + childServers.size());
-        childServers.forEach(bootingServer -> {
-            synchronized (bootingServer) {
-                if (bootingServer.isBooted()) {
-                    bootingServer.stopObject();
-                    try { bootingServer.wait(); } catch (InterruptedException ignore) {}
-                }
-            }
-        });
+        childServers.forEach(childStopper);
     }
 
+    @Override
     public List<BootingServer> getChildServers() {
         return Collections.unmodifiableList(childServers);
     }

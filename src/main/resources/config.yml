@@ -5,7 +5,7 @@ Settings:
   bootAllObjectsOnStart: false
   enableDebug: false # More information about runtime and objects
   screenNamePattern: 'MCB-%name%' # Allowed variables: %name% and %priority%
-  eachServerStartDelay: 5 # Delay in seconds between objects starts (use 0 to disable(
+  eachServerStartDelay: 3 # Delay in seconds between objects starts (use 0 to disable(
   reverseStartOrderOnStop: false # Inverse priority of all objects
 
 # Objects example configuration

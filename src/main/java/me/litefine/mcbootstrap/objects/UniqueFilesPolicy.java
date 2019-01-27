@@ -11,12 +11,12 @@ public interface UniqueFilesPolicy {
     File getUniqueFolder(PrimaryBootingServer primaryBootingServer, BootingServer forObject);
 
     UniqueFilesPolicy INORDER_POLICY = (primaryBootingServer, forObject) -> {
-        int index = primaryBootingServer.getClonedServers().indexOf(forObject);
+        int index = primaryBootingServer.getChildServers().indexOf(forObject) % primaryBootingServer.getUniqueFilesFolder().listFiles().length;
         return primaryBootingServer.getUniqueFilesFolder().listFiles()[index];
     };
 
     UniqueFilesPolicy RANDOM_POLICY = (primaryBootingServer, forObject) -> {
-        int bound = primaryBootingServer.getUniqueFilesFolder().listFiles().length - 1;
+        int bound = primaryBootingServer.getUniqueFilesFolder().listFiles().length;
         return primaryBootingServer.getUniqueFilesFolder().listFiles()[ThreadLocalRandom.current().nextInt(bound)];
     };
 

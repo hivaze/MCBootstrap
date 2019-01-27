@@ -128,8 +128,6 @@ public class CommandsManager {
                         System.out.println(" Common host: " + (group.hasCommonHost() ? group.getCommonHost() : "NOT DEFINED"));
                         System.out.println(" First port: " + (group.hasFirstPort() ?group.getFirstPort() : "NOT DEFINED"));
                         System.out.println(" Child servers: " + (group.getChildServers().isEmpty() ? "NOT FOUND" : ""));
-                        group.getChildServers().forEach(server ->
-                                System.out.printf(" - %s%s%n", server.isBooted() ? BasicUtils.colorize(server.getName(), Ansi.Color.GREEN) : BasicUtils.colorize(server.getName(), Ansi.Color.DEFAULT), server.isBooted() ? " | active screen: '" + server.getScreenID() + "." + server.getScreenName() + "'" : ""));
                     } else if (object instanceof PrimaryBootingServer) {
                         PrimaryBootingServer primaryServer = (PrimaryBootingServer) object;
                         System.out.println(" Generation directory: '" + primaryServer.getGenerationDirectory().getAbsolutePath() + "'");
@@ -137,8 +135,11 @@ public class CommandsManager {
                                 (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.INORDER_POLICY ? "INORDER" : (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.RANDOM_POLICY ? "RANDOM" : "CUSTOM")));
                         System.out.println(" First port: " + primaryServer.getFirstPort());
                         System.out.println(" Clones count: " + primaryServer.getClonesCount());
-                        System.out.println(" Child cloned servers: " + (primaryServer.getClonedServers().isEmpty() ? "NOT FOUND" : ""));
-                        primaryServer.getClonedServers().forEach(server ->
+                        System.out.println(" Child cloned servers: " + (primaryServer.getChildServers().isEmpty() ? "NOT FOUND" : ""));
+                    }
+                    if (object instanceof ParenthoodObject) {
+                        ParenthoodObject parent = (ParenthoodObject) object;
+                        parent.getChildServers().forEach(server ->
                                 System.out.printf(" - %s%s%n", server.isBooted() ? BasicUtils.colorize(server.getName(), Ansi.Color.GREEN) : BasicUtils.colorize(server.getName(), Ansi.Color.DEFAULT), server.isBooted() ? " | active screen: '" + server.getScreenID() + "." + server.getScreenName() + "'" : ""));
                     }
                     System.out.println();
