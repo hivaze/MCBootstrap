@@ -74,10 +74,11 @@ public class BasicUtils {
 
     public static String millisToPattern(long millis) {
         Duration dur = Duration.ofMillis(millis);
-        long hoursDur   = dur.toHours();
+        long daysDur = dur.toDays();
+        long hoursDur = dur.toHours();
         long minutesDur = dur.minusHours(hoursDur).toMinutes();
         long secondsDur = dur.minusHours(hoursDur).minusMinutes(minutesDur).getSeconds();
-        return String.format("%03d:%02d:%02d", hoursDur, minutesDur, secondsDur);
+        return String.format("%02dd %02dh %02dm %02ds", daysDur, hoursDur, minutesDur, secondsDur);
     }
 
     public static double round(double number, int scale) {
