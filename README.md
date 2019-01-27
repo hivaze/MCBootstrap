@@ -1,4 +1,4 @@
-![Logo](https://image.ibb.co/kexbmb/cooltext271004839975988.png "Optional title")
+![Logo](https://i.ibb.co/HTL2W75/1.png "Logo")
 
 ## Quik introduction
 This is very simple and powerful standalone tool for **minecraft** servers **administrators**, for **atomization** and improvement of your **network management** using **GNU Screen** utility . MCBootstrap helps to manage full lifecycle of yout servers and scripts, log their work and can restart it automatically. An **important feature** is the ability to **generate** clones of servers in runtime and create **custom addons**.
@@ -12,4 +12,4 @@ This is very simple and powerful standalone tool for **minecraft** servers **adm
 * **Extensions system**. If you are a developer, you can supplement this system for yourself.
 
 ## Last version screenshot
-![Logo](https://i.ibb.co/99H5Jk4/2019-01-26-2-10-20.png "Screenshot of work")
+![Logo](https://i.ibb.co/k9th1jD/2019-01-27-3-28-00.png "Screenshot of work")
