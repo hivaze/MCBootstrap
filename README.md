@@ -24,8 +24,8 @@ If you have a huge Minecraft network it's hard to manage all servers statuses, s
 * To run MCBootstrap open console, create new screen (optional), go to your folder and type ```java -Xmx256M -XX:+UseBiasedLocking -jar MCBootstrap.jar```
 * Stop application using ```shutdown``` command and setup your config.yml settings as you want, [help here](https://github.com/LITEFINE/MCBootstrap/wiki/Config-setup)
 
-## Run MCBootstrap on LINUX startup
-MCBootstrap has feature to start all your booting objects from config on application startup, so you if you want to make application start on LINUX startup you need read [this wiki page](https://github.com/LITEFINE/MCBootstrap/wiki/Boot-on-LINUX-startup).
+## Run MCBootstrap on machine startup
+MCBootstrap has feature to start all your booting objects from config on application startup, so you if you want to make application start on machine startup you need read [this wiki page](https://github.com/LITEFINE/MCBootstrap/wiki/Boot-on-machine-startup).
 
 ## Appearance of UI
 ![Logo](https://i.ibb.co/t3T9ctS/2019-01-27-3-34-30.png "Screenshot of work")
