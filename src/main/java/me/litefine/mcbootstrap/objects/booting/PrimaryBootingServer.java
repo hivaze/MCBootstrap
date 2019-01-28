@@ -106,7 +106,7 @@ public class PrimaryBootingServer extends BootingObject implements ParenthoodObj
 
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                if (dir.equals(uniqueFilesFolder.toPath())) return FileVisitResult.SKIP_SUBTREE;
+                if (dir.equals(uniqueFilesFolder.toPath()) || dir.equals(forObject.directory.toPath())) return FileVisitResult.SKIP_SUBTREE;
                 else {
                     Files.copy(dir, basicRelationMaker.apply(dir));
                     return FileVisitResult.CONTINUE;

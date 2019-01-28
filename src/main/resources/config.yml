@@ -1,25 +1,28 @@
 #
 # MCBootstrap main configuration file
 
+# Basic settings
+# Setup explanation: https://github.com/LITEFINE/MCBootstrap/wiki/Config-setup
 Settings:
   bootAllObjectsOnStart: false
   enableDebug: false # More information about runtime and objects
   screenNamePattern: 'MCB-%name%' # Allowed variables: %name% and %priority%
-  eachServerStartDelay: 3 # Delay in seconds between objects starts (use 0 to disable(
+  eachObjectStartDelay: 3 # Delay in seconds between objects starts (use 0 to disable(
   reverseStartOrderOnStop: false # Inverse priority of all objects
 
 # Objects example configuration
+# Setup explanation: https://github.com/LITEFINE/MCBootstrap/wiki/About-booting-object-types/
 Booting Objects:
   server1:
     type: SERVER
-    priority: NORMAL # Control startup order of all objects, NORMAL by default
+    priority: NORMAL # Controls startup order of all objects, NORMAL by default
     bootCommand: 'java -jar Server.jar' # Shell command executed in new screen
     stopCommand: 'stop' # Server termination command, empty by default
     directory: '/example/servers/server1/'
   server2:
     type: SERVER
     priority: HIGH
-    port: 25565 # if not specified, it will be read from the server.properties or from another configuration files
+    port: 25565 # If not specified, it will be read from the server.properties or from another configuration files
     autoRestart: true # Start this object again after screen shutdown, disabled by default
     bootCommand: 'java -jar Server.jar'
     stopCommand: 'stop'

@@ -49,7 +49,7 @@ public class Settings {
         }
         bootAllOnStart = YamlUtils.getBooleanValue("Settings.bootAllObjectsOnStart", mapRepresentation);
         screenNamePattern = YamlUtils.getStringValue("Settings.screenNamePattern", mapRepresentation);
-        startDelay = YamlUtils.getLongValue("Settings.eachServerStartDelay", mapRepresentation);
+        startDelay = YamlUtils.getLongValue("Settings.eachObjectStartDelay", mapRepresentation);
         reverseOrderOnStop = YamlUtils.getBooleanValue("Settings.reverseStartOrderOnStop", mapRepresentation);
         Map<String, Map<String, String>> objects = YamlUtils.getMapValue("Booting Objects", mapRepresentation);
         MCBootstrap.getLogger().info("Loading booting objects from config...");

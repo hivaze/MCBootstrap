@@ -16,6 +16,7 @@ This is very simple and powerful standalone tool for **minecraft** servers **adm
 If you have a huge Minecraft network it's hard to manage all servers statuses, so now you can install this application, setup [config.yml](https://github.com/LITEFINE/MCBootstrap/blob/master/src/main/resources/config.yml) and manage servers/scripts through the MCBootstrap console, saving a huge amount of time on configuration of each server and its start / stop. If you are interested, I recommend you to go to the [wiki](https://github.com/LITEFINE/MCBootstrap/wiki).
 
 ## Installation
+* Check if you have Java 8 or newer on target machine
 * Check if you have **GNU Screen** utility, if you do not have it, install it from http://ftp.gnu.org/gnu/screen/
 * Download builded jar: https://github.com/LITEFINE/MCBootstrap/raw/master/target/MCBootstrap-2.0-SNAPSHOT.jar or build by your own with git
 * Rename your jar to MCBootstrap.jar (optional)
