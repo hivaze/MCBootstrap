@@ -49,30 +49,30 @@ public class BootingAPI {
         return bootingObjects;
     }
 
-    public static synchronized Optional<BootingObject> getBootingObjectByName(String name, boolean includeChildes) {
+    public static synchronized Optional<BootingObject> getBootingObjectByName(String name, boolean includeChildren) {
         Stream<BootingObject> stream = bootingObjects.stream();
-        if (includeChildes) {
+        if (includeChildren) {
             stream = Stream.concat(stream, getBootingGroups().map(BootingGroup::getChildServers).flatMap(List::stream).map(BootingObject.class::cast));
             stream = Stream.concat(stream, getPrimaryBootingServers().map(PrimaryBootingServer::getChildServers).flatMap(List::stream).map(BootingObject.class::cast));
         }
         return stream.filter(bootingObject -> bootingObject.getName().equals(name)).findFirst();
     }
 
-    public static synchronized Stream<BootingServer> getBootingServers(boolean includeChildes) {
+    public static synchronized Stream<BootingServer> getBootingServers(boolean includeChildren) {
         Stream<BootingServer> serverStream = bootingObjects.stream().filter(BootingServer.class::isInstance).map(BootingServer.class::cast);
-        if (includeChildes) {
+        if (includeChildren) {
             serverStream = Stream.concat(serverStream, getBootingGroups().map(BootingGroup::getChildServers).flatMap(List::stream).map(BootingServer.class::cast));
             serverStream = Stream.concat(serverStream, getPrimaryBootingServers().map(PrimaryBootingServer::getChildServers).flatMap(List::stream).map(BootingServer.class::cast));
         }
         return serverStream;
     }
 
-    public static synchronized Stream<BootingServer> getRunningServers(boolean includeChilds) {
-        return getBootingServers(includeChilds).filter(BootingServer::isBooted);
+    public static synchronized Stream<BootingServer> getRunningServers(boolean includeChildren) {
+        return getBootingServers(includeChildren).filter(BootingServer::isBooted);
     }
 
-    public static synchronized Optional<BootingServer> getServerByScreenName(String screenName, boolean includeChilds) {
-        return getBootingServers(includeChilds).filter(server -> server.getScreenName().equals(screenName)).findFirst();
+    public static synchronized Optional<BootingServer> getServerByScreenName(String screenName, boolean includeChildren) {
+        return getBootingServers(includeChildren).filter(server -> server.getScreenName().equals(screenName)).findFirst();
     }
 
     public static synchronized Stream<BootingGroup> getBootingGroups() {

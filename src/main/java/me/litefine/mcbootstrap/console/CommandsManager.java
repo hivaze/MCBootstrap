@@ -52,19 +52,18 @@ public class CommandsManager {
             System.out.println(BasicUtils.bolding("MCBootstrap") + " by "  + BasicUtils.bolding("LITEFINE") + " v2.0-SNAPSHOT");
             System.out.println("Project wiki: " + BasicUtils.colorize("https://github.com/LITEFINE/MCBootstrap/wiki", Ansi.Color.YELLOW));
             System.out.println("> This is very simple and powerful standalone tool");
-            System.out.println("for atomization and improvement of your network management");
+            System.out.println("> for atomization and improvement of your network management");
             System.out.println();
             System.out.println(BasicUtils.bolding(" Existing commands:"));
             System.out.println(" 'info' - basic information about runtime");
             System.out.println(" 'help' - this page");
             System.out.println(" 'status' - basic information about MCBootstrap status");
-            System.out.println(" 'status list' - all objects statuses");
-            System.out.println(" 'status <objectName>' - object status");
+            System.out.println(" 'status <all/objectName>' - status of all or one specific object");
             System.out.println(" 'start <all/objectName>' - start all or one specific object");
             System.out.println(" 'stop <all/objectName>' - stop all or one specific object");
             System.out.println(" 'extensions' - information about active extensions");
             System.out.println(" 'shutdown' - full and safe shutdown with all objects stopping");
-            System.out.println(" 'systemexit' - quick and safe shutdown ");
+            System.out.println(" 'systemexit' - quick and safe shutdown");
             System.out.println();
         });
         commands.put("status", args -> {
@@ -80,9 +79,9 @@ public class CommandsManager {
                 System.out.println(" Total running servers: " + BootingAPI.getRunningServers(true).count());
                 System.out.println(" Total running applications: " + BootingAPI.getRunningApplications().count());
                 System.out.println();
-            } else if (args[0].equalsIgnoreCase("list")) {
+            } else if (args[0].equalsIgnoreCase("all")) {
                 System.out.println();
-                System.out.println(BasicUtils.bolding("Bootstrap objects status list:"));
+                System.out.println(BasicUtils.bolding("Bootstrap objects statuses:"));
                 System.out.println();
                 System.out.println(" Booting servers: " + (BootingAPI.getBootingServers(false).count() == 0 ? "NOT FOUND" : ""));
                 BootingAPI.getBootingServers(false).forEach(server ->
@@ -135,7 +134,7 @@ public class CommandsManager {
                                 (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.INORDER_POLICY ? "INORDER" : (primaryServer.getUniqueFilesPolicy() == UniqueFilesPolicy.RANDOM_POLICY ? "RANDOM" : "CUSTOM")));
                         System.out.println(" First port: " + primaryServer.getFirstPort());
                         System.out.println(" Clones count: " + primaryServer.getClonesCount());
-                        System.out.println(" Child cloned servers: " + (primaryServer.getChildServers().isEmpty() ? "NOT FOUND" : ""));
+                        System.out.println(" Cloned servers: " + (primaryServer.getChildServers().isEmpty() ? "NOT FOUND" : ""));
                     }
                     if (object instanceof ParenthoodObject) {
                         ParenthoodObject parent = (ParenthoodObject) object;
@@ -190,7 +189,7 @@ public class CommandsManager {
         commands.put("extensions", args -> {
             System.out.println();
             System.out.println(BasicUtils.bolding("Extensions manager information:"));
-            if (ExtensionsManager.getExtensions().isEmpty()) System.out.println("> No loaded extensions foubd.");
+            if (ExtensionsManager.getExtensions().isEmpty()) System.out.println("> No loaded extensions found.");
             ExtensionsManager.getExtensions().forEach(extension -> System.out.println(" - " + BasicUtils.colorize(extension.getName(), Ansi.Color.GREEN) + " v. " + extension.getVersion() + " | Author " + extension.getAuthor()));
             System.out.println();
         });
@@ -205,7 +204,7 @@ public class CommandsManager {
 
     public static void unregisterCommand(String command) {
         commands.remove(command);
-        MCBootstrap.getLogger().debug("Command deregistration: '" + command + "'");
+        MCBootstrap.getLogger().debug("Command unregistering: '" + command + "'");
     }
 
     public static Map<String, CommandConsumer> getCommands() {
