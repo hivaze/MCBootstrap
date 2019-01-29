@@ -28,4 +28,4 @@ If you have a huge Minecraft network it's hard to manage all servers statuses, s
 MCBootstrap has feature to start all your booting objects from config on application startup, so you if you want to make application start on machine startup you need read [this wiki page](https://github.com/LITEFINE/MCBootstrap/wiki/Boot-on-machine-startup).
 
 ## Appearance of UI
-![Logo](https://i.ibb.co/t3T9ctS/2019-01-27-3-34-30.png "Screenshot of work")
+![Logo](https://i.ibb.co/WWq0J92/2019-01-29-9-50-21.png "Screenshot of work")
